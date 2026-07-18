@@ -1,0 +1,130 @@
+<!DOCTYPE html>
+<html lang="th">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Client Portal — ติดตามสถานะงาน</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Prompt:wght@300;400;500;600;700&family=IBM+Plex+Mono:wght@500&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+<div class="app">
+
+  <!-- Sidebar -->
+  <aside class="sidebar" id="sidebar">
+    <div class="sidebar-top">
+      <div class="brand">
+        <div class="brand-mark">CP</div>
+        <div class="brand-text">
+          <strong>Client Portal</strong>
+          <span>ระบบติดตามสถานะงาน</span>
+        </div>
+      </div>
+      <button class="icon-btn sidebar-close" id="sidebarClose" aria-label="ปิดเมนู">
+        <span class="nav-icon" data-icon="close"></span>
+      </button>
+    </div>
+
+    <nav class="nav" id="nav">
+      <button class="nav-item active" data-view="dashboard">
+        <span class="nav-icon" data-icon="grid"></span> Dashboard
+      </button>
+      <button class="nav-item" data-view="tasks">
+        <span class="nav-icon" data-icon="list"></span> Task Tracking
+      </button>
+      <button class="nav-item" data-view="timeline">
+        <span class="nav-icon" data-icon="timeline"></span> Timeline
+      </button>
+      <button class="nav-item" data-view="files">
+        <span class="nav-icon" data-icon="file"></span> File &amp; Approval
+      </button>
+      <button class="nav-item" data-view="revisions">
+        <span class="nav-icon" data-icon="revision"></span> Revision Tracking
+      </button>
+      <button class="nav-item" data-view="delays">
+        <span class="nav-icon" data-icon="alert"></span> Delay Report
+      </button>
+      <button class="nav-item" data-view="contact">
+        <span class="nav-icon" data-icon="chat"></span> ติดต่อ &amp; คำขอ
+      </button>
+    </nav>
+
+    <div class="sidebar-bottom">
+      <div class="project-picker">
+        <label>โปรเจกต์</label>
+        <select id="projectFilter"></select>
+      </div>
+      <button class="theme-toggle" id="themeToggle">
+        <span class="nav-icon" data-icon="sun"></span> <span id="themeLabel">โหมดสว่าง</span>
+      </button>
+    </div>
+  </aside>
+
+  <div class="scrim" id="scrim"></div>
+
+  <!-- Main -->
+  <main class="main">
+    <header class="topbar">
+      <button class="icon-btn menu-btn" id="menuBtn" aria-label="เปิดเมนู">
+        <span class="nav-icon" data-icon="menu"></span>
+      </button>
+      <div class="topbar-title">
+        <h1 id="viewTitle">Dashboard Progress</h1>
+        <p id="viewSubtitle">ภาพรวมความคืบหน้าของทุกโปรเจกต์แบบเรียลไทม์</p>
+      </div>
+      <div class="topbar-actions">
+        <div class="search-box">
+          <span class="nav-icon" data-icon="search"></span>
+          <input type="text" id="globalSearch" placeholder="ค้นหางาน, ผู้รับผิดชอบ...">
+        </div>
+        <div class="client-chip">
+          <div class="avatar">คณ</div>
+          <div class="client-chip-text">
+            <strong>คุณลูกค้า</strong>
+            <span>Aroi Delight Co., Ltd.</span>
+          </div>
+        </div>
+      </div>
+    </header>
+
+    <div class="content" id="content">
+
+      <!-- DASHBOARD -->
+      <section class="view active" id="view-dashboard"></section>
+
+      <!-- TASK TRACKING -->
+      <section class="view" id="view-tasks"></section>
+
+      <!-- TIMELINE -->
+      <section class="view" id="view-timeline"></section>
+
+      <!-- FILES & APPROVAL -->
+      <section class="view" id="view-files"></section>
+
+      <!-- REVISION TRACKING -->
+      <section class="view" id="view-revisions"></section>
+
+      <!-- DELAY REPORT -->
+      <section class="view" id="view-delays"></section>
+
+      <!-- CONTACT & REQUESTS -->
+      <section class="view" id="view-contact"></section>
+
+    </div>
+  </main>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast"></div>
+
+<!-- Task detail modal -->
+<div class="modal-backdrop" id="modalBackdrop">
+  <div class="modal" id="taskModal"></div>
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
