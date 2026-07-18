@@ -31,23 +31,33 @@ const ICONS = {
   trending: '<polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/>',
   clock: '<circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/>',
   inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
+  edit: '<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>',
+  trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
 };
 function icon(name) {
   return `<span class="nav-icon"><svg viewBox="0 0 24 24">${ICONS[name] || ''}</svg></span>`;
 }
 
 /* ---------- Mock data ---------- */
+const CLIENT = { name: 'Aroi Delight Co., Ltd.', industry: 'ธุรกิจร้านอาหาร' };
+
 const PROJECTS = [
-  { id: 'p1', name: 'เว็บไซต์ร้านอาหาร Aroi Delight' },
-  { id: 'p2', name: 'แอปพลิเคชันจองคิว QueueEasy' },
+  { id: 'p1', name: 'เว็บไซต์ร้านอาหาร Aroi Delight', description: 'เว็บไซต์หลักของร้าน ครอบคลุมหน้า Landing, ระบบสั่งอาหารออนไลน์ และ SEO' },
+  { id: 'p2', name: 'ระบบจองคิวออนไลน์ (สาขาใหม่)', description: 'ระบบจองคิวสำหรับลูกค้าที่สาขาใหม่ พร้อมแดชบอร์ดผู้ดูแลระบบ' },
 ];
 
-const STAFF = [
-  { id: 's1', name: 'พีรพัฒน์ วงศ์', role: 'Project Manager', email: 'peerapat.pm@agency.co.th', phone: '089-123-4567', line: '@peerapat.pm' },
-  { id: 's2', name: 'สุชาดา อินทร์แก้ว', role: 'UI/UX Designer', email: 'suchada.d@agency.co.th', phone: '081-234-5678', line: '@suchada.design' },
-  { id: 's3', name: 'ธนกร ศรีสุข', role: 'Frontend Developer', email: 'thanakorn.dev@agency.co.th', phone: '082-345-6789', line: '@thanakorn.fe' },
-  { id: 's4', name: 'มนัสวี ชัยพร', role: 'Backend Developer', email: 'manasawee.dev@agency.co.th', phone: '083-456-7890', line: '@manasawee.be' },
+const STAFF_SEED = [
+  { id: 's1', name: 'พีรพัฒน์ วงศ์', role: 'Project Manager (PM)', email: 'peerapat.pm@agency.co.th', phone: '089-123-4567', line: '@peerapat.pm' },
+  { id: 's2', name: 'สุชาดา อินทร์แก้ว', role: 'Producer & UI/UX Designer', email: 'suchada.d@agency.co.th', phone: '081-234-5678', line: '@suchada.design' },
+  { id: 's3', name: 'ธนกร ศรีสุข', role: 'Developer (Frontend)', email: 'thanakorn.dev@agency.co.th', phone: '082-345-6789', line: '@thanakorn.fe' },
+  { id: 's4', name: 'มนัสวี ชัยพร', role: 'Developer (Backend)', email: 'manasawee.dev@agency.co.th', phone: '083-456-7890', line: '@manasawee.be' },
   { id: 's5', name: 'อรวรรณ พงษ์ไพบูลย์', role: 'QA & Content', email: 'orawan.qa@agency.co.th', phone: '084-567-8901', line: '@orawan.qa' },
+  { id: 's6', name: 'ชนากานต์ ทิพย์เนตร', role: 'Account Executive (AE)', email: 'chanakan.ae@agency.co.th', phone: '085-678-9012', line: '@chanakan.ae' },
+];
+
+const CLIENT_TEAM_SEED = [
+  { id: 'ct1', name: 'คุณกัญญา รักษ์ไพศาล', role: 'เจ้าของร้าน (ผู้อนุมัติหลัก)', email: 'kanya@aroidelight.com', phone: '081-111-2222', primary: true },
+  { id: 'ct2', name: 'คุณปวีณา ทองดี', role: 'ผู้จัดการฝ่ายการตลาด', email: 'paweena@aroidelight.com', phone: '082-222-3333', primary: false },
 ];
 
 const TASKS = [
@@ -77,22 +87,22 @@ const TASKS = [
     workLink: 'https://figma.com/file/aroi-landing-page-v2',
     revisions: [{ date: '2026-07-15', requestedBy: 'ลูกค้า', reason: 'รอรูปถ่ายอาหารชุดใหม่จากลูกค้าเพื่อใส่ในหน้าเว็บ', daysAdded: 3 }] },
 
-  { id: 't7', projectId: 'p2', name: 'ออกแบบ Wireframe แอปทั้งหมด', assigneeId: 's2', status: 'completed',
+  { id: 't7', projectId: 'p2', name: 'ออกแบบ Wireframe ระบบจองคิวทั้งหมด', assigneeId: 's2', status: 'completed',
     startDate: '2026-06-10', originalDeadline: '2026-06-18', completedDate: '2026-06-17', progress: 100,
-    workLink: 'https://figma.com/file/queueeasy-wireframe', revisions: [] },
+    workLink: 'https://figma.com/file/queue-wireframe', revisions: [] },
 
   { id: 't8', projectId: 'p2', name: 'พัฒนาระบบ Login / Register', assigneeId: 's3', status: 'completed',
     startDate: '2026-06-18', originalDeadline: '2026-06-28', completedDate: '2026-07-02', progress: 100,
-    workLink: 'https://github.com/queueeasy/auth-service',
+    workLink: 'https://github.com/aroi-delight/queue-auth-service',
     revisions: [{ date: '2026-06-27', requestedBy: 'ลูกค้า', reason: 'เปลี่ยนวิธียืนยันตัวตนจาก Email เป็น OTP ผ่าน SMS', daysAdded: 1 }] },
 
   { id: 't9', projectId: 'p2', name: 'พัฒนาระบบจองคิวหลัก (Core Queue Engine)', assigneeId: 's4', status: 'in_progress',
     startDate: '2026-06-20', originalDeadline: '2026-07-05', completedDate: null, progress: 60,
-    workLink: 'https://github.com/queueeasy/queue-engine', revisions: [] },
+    workLink: 'https://github.com/aroi-delight/queue-engine', revisions: [] },
 
   { id: 't10', projectId: 'p2', name: 'ออกแบบ Dashboard ผู้ดูแลระบบ (Admin)', assigneeId: 's2', status: 'in_progress',
     startDate: '2026-07-10', originalDeadline: '2026-07-25', completedDate: null, progress: 30,
-    workLink: 'https://figma.com/file/queueeasy-admin', revisions: [] },
+    workLink: 'https://figma.com/file/queue-admin', revisions: [] },
 
   { id: 't11', projectId: 'p2', name: 'พัฒนา API ระบบแจ้งเตือน (Notification)', assigneeId: 's3', status: 'not_started',
     startDate: '2026-07-21', originalDeadline: '2026-08-02', completedDate: null, progress: 0,
@@ -100,7 +110,7 @@ const TASKS = [
 
   { id: 't12', projectId: 'p2', name: 'ตรวจสอบความปลอดภัยระบบชำระเงิน', assigneeId: 's4', status: 'review',
     startDate: '2026-07-08', originalDeadline: '2026-07-17', completedDate: null, progress: 95,
-    workLink: 'https://docs.google.com/document/queueeasy-security-report', revisions: [] },
+    workLink: 'https://docs.google.com/document/queue-security-report', revisions: [] },
 ];
 
 const FILES_SEED = [
@@ -113,14 +123,14 @@ const FILES_SEED = [
 ];
 
 const REQUESTS_SEED = [
-  { id: 'r1', projectId: 'p1', subject: 'ขอเปลี่ยนรูปภาพหน้าปกเว็บไซต์', category: 'แก้ไขงาน', priority: 'ปานกลาง', desiredDate: '2026-07-22', description: 'อยากเปลี่ยนรูปหน้าปกเป็นรูปที่ถ่ายใหม่ล่าสุดของทางร้าน', status: 'รับทราบแล้ว', submittedDate: '2026-07-15' },
-  { id: 'r2', projectId: 'p2', subject: 'สอบถามความคืบหน้าระบบจองคิวหลัก', category: 'สอบถาม', priority: 'สูง', desiredDate: '', description: 'อยากทราบว่าระบบจองคิวหลักจะเสร็จเมื่อไหร่ เพราะกระทบกำหนดเปิดตัว', status: 'รอดำเนินการ', submittedDate: '2026-07-17' },
+  { id: 'r1', projectId: 'p1', requesterId: 'ct2', subject: 'ขอเปลี่ยนรูปภาพหน้าปกเว็บไซต์', category: 'แก้ไขงาน', priority: 'ปานกลาง', desiredDate: '2026-07-22', description: 'อยากเปลี่ยนรูปหน้าปกเป็นรูปที่ถ่ายใหม่ล่าสุดของทางร้าน', status: 'รับทราบแล้ว', submittedDate: '2026-07-15' },
+  { id: 'r2', projectId: 'p2', requesterId: 'ct1', subject: 'สอบถามความคืบหน้าระบบจองคิวหลัก', category: 'สอบถาม', priority: 'สูง', desiredDate: '', description: 'อยากทราบว่าระบบจองคิวหลักจะเสร็จเมื่อไหร่ เพราะกระทบกำหนดเปิดตัว', status: 'รอดำเนินการ', submittedDate: '2026-07-17' },
 ];
 
 const STATUS_META = {
   not_started: { label: 'ยังไม่เริ่ม', badge: 'neutral' },
   in_progress: { label: 'กำลังดำเนินการ', badge: 'info' },
-  review: { label: 'รอตรวจสอบ', badge: 'warning' },
+  review: { label: 'รอลูกค้าตรวจสอบ', badge: 'waiting' },
   revision: { label: 'กำลังแก้ไข', badge: 'warning' },
   completed: { label: 'เสร็จสิ้น', badge: 'success' },
 };
@@ -137,9 +147,14 @@ const store = {
 };
 let deadlineOverrides = store.get('cp_deadline_overrides', {});
 let linkOverrides = store.get('cp_link_overrides', {});
+let assigneeOverrides = store.get('cp_assignee_overrides', {});
+let waitingOverrides = store.get('cp_waiting_overrides', { t6: true });
+let waitingNotes = store.get('cp_waiting_notes', { t6: 'รอรูปถ่ายอาหารชุดใหม่จากลูกค้าเพื่อใช้ในหน้าเว็บ' });
 let fileOverrides = store.get('cp_file_overrides', {});
 let extraFiles = store.get('cp_extra_files', []);
 let extraRequests = store.get('cp_extra_requests', []);
+let staff = store.get('cp_staff', STAFF_SEED);
+let clientTeam = store.get('cp_client_team', CLIENT_TEAM_SEED);
 
 /* ---------- Date helpers ---------- */
 const THAI_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
@@ -158,7 +173,10 @@ function fmtDateShort(s) {
 function addDays(s, n) { const d = parseDate(s); d.setDate(d.getDate() + n); return toISO(d); }
 function diffDays(fromStr, toStr) { return Math.round((parseDate(toStr) - parseDate(fromStr)) / 86400000); }
 
-function getStaff(id) { return STAFF.find(s => s.id === id); }
+function getStaff(id) { return staff.find(s => s.id === id) || staff[0]; }
+function getAssignee(task) { return getStaff(assigneeOverrides[task.id] || task.assigneeId); }
+function getClientPerson(id) { return clientTeam.find(c => c.id === id); }
+function getPrimaryClientContact() { return clientTeam.find(c => c.primary) || clientTeam[0]; }
 function getProject(id) { return PROJECTS.find(p => p.id === id); }
 
 function getCurrentDeadline(task) {
@@ -167,6 +185,17 @@ function getCurrentDeadline(task) {
   return addDays(task.originalDeadline, extra);
 }
 function getWorkLink(task) { return linkOverrides[task.id] !== undefined ? linkOverrides[task.id] : task.workLink; }
+
+function isWaitingOnClient(task) {
+  const ov = waitingOverrides[task.id];
+  if (typeof ov === 'boolean') return ov;
+  return task.status === 'review';
+}
+function getWaitingNote(task) {
+  if (waitingNotes[task.id]) return waitingNotes[task.id];
+  if (task.status === 'review') return 'ส่งงานให้ลูกค้าตรวจสอบแล้ว กำลังรอการอนุมัติ/ฟีดแบ็ก';
+  return '';
+}
 
 function getDelayInfo(task) {
   const current = getCurrentDeadline(task);
@@ -190,8 +219,8 @@ function filteredTasks() {
     if (state.statusFilter !== 'all' && t.status !== state.statusFilter) return false;
     if (state.search) {
       const q = state.search.toLowerCase();
-      const staff = getStaff(t.assigneeId);
-      if (!t.name.toLowerCase().includes(q) && !(staff && staff.name.toLowerCase().includes(q))) return false;
+      const assignee = getAssignee(t);
+      if (!t.name.toLowerCase().includes(q) && !(assignee && assignee.name.toLowerCase().includes(q))) return false;
     }
     return true;
   });
@@ -207,6 +236,9 @@ function toast(msg) {
   toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
 }
 
+function initials(name) { const parts = name.trim().split(' '); return parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2); }
+function waitingTag(t) { return isWaitingOnClient(t) ? `<span class="badge badge-waiting">${icon('clock')} รอลูกค้า</span>` : ''; }
+
 /* =========================================================
    RENDER: Dashboard
    ========================================================= */
@@ -215,20 +247,21 @@ function renderDashboard() {
   const total = tasks.length;
   const completed = tasks.filter(t => t.status === 'completed').length;
   const active = tasks.filter(t => t.status !== 'completed');
-  const lateNow = active.filter(t => getDelayInfo(t).late).length;
+  const lateOur = active.filter(t => getDelayInfo(t).late && !isWaitingOnClient(t)).length;
+  const lateClient = active.filter(t => getDelayInfo(t).late && isWaitingOnClient(t)).length;
   const avgProgress = total ? Math.round(tasks.reduce((s, t) => s + t.progress, 0) / total) : 0;
 
   const kpis = [
     { label: 'งานทั้งหมด', value: total, icon: 'list', color: 'info', delta: `${active.length} กำลังดำเนินการ` },
     { label: 'เสร็จสิ้นแล้ว', value: completed, icon: 'check', color: 'success', delta: total ? `${Math.round(completed / total * 100)}% ของทั้งหมด` : '—' },
-    { label: 'ล่าช้าอยู่ตอนนี้', value: lateNow, icon: 'alert', color: 'danger', delta: lateNow ? 'ต้องติดตามด่วน' : 'ไม่มีงานล่าช้า' },
-    { label: 'ความคืบหน้าเฉลี่ย', value: avgProgress + '%', icon: 'trending', color: 'primary', delta: 'ทุกงานที่กำลังดำเนินการ' },
+    { label: 'ล่าช้าฝั่งเรา', value: lateOur, icon: 'alert', color: 'danger', delta: lateOur ? 'ต้องติดตามด่วน' : 'ไม่มีงานล่าช้า' },
+    { label: 'รอลูกค้าดำเนินการ', value: lateClient, icon: 'clock', color: 'waiting', delta: lateClient ? 'รอคำตอบ/ไฟล์จากลูกค้า' : 'ไม่มีงานรอ' },
   ];
 
   const kpiHtml = kpis.map(k => `
     <div class="card kpi-card">
       <div class="kpi-top">
-        <div class="kpi-icon" style="background:var(--${k.color === 'primary' ? 'primary-soft' : k.color + '-soft'});color:var(--${k.color === 'primary' ? 'primary' : k.color})">${icon(k.icon)}</div>
+        <div class="kpi-icon" style="background:var(--${k.color}-soft);color:var(--${k.color})">${icon(k.icon)}</div>
       </div>
       <div class="kpi-value">${k.value}</div>
       <div class="kpi-label">${k.label}</div>
@@ -259,16 +292,17 @@ function renderDashboard() {
     .slice(0, 6);
 
   const upcomingRows = upcoming.length ? upcoming.map(({ t, d, dl }) => {
-    const staff = getStaff(t.assigneeId);
+    const assignee = getAssignee(t);
     return `<tr>
       <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td><div class="assignee"><div class="avatar">${initials(staff.name)}</div>${staff.name}</div></td>
+      <td><div class="assignee"><div class="avatar">${initials(assignee.name)}</div><div><div>${assignee.name}</div><div class="row-sub">${assignee.role}</div></div></div></td>
       <td>${fmtDateShort(dl)}</td>
-      <td><span class="delay-pill ${d.late ? 'late' : 'ontime'}">${d.label}</span></td>
+      <td><span class="delay-pill ${d.late ? 'late' : 'ontime'}">${d.label}</span> ${waitingTag(t)}</td>
     </tr>`;
   }).join('') : `<tr><td colspan="4"><div class="empty-state">${icon('inbox')}<p>ไม่มีงานที่ใกล้ถึงกำหนด</p></div></td></tr>`;
 
   document.getElementById('view-dashboard').innerHTML = `
+    <div class="client-projects-note">${icon('users')} กำลังทำงานร่วมกับ <strong>${CLIENT.name}</strong> ใน ${PROJECTS.length} โปรเจกต์</div>
     <div class="grid kpi-grid">${kpiHtml}</div>
     <div class="grid two-col" style="margin-bottom:22px">
       <div class="card">
@@ -300,8 +334,6 @@ function renderDashboard() {
     </div>`;
 }
 
-function initials(name) { const parts = name.trim().split(' '); return parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2); }
-
 /* =========================================================
    RENDER: Task Tracking
    ========================================================= */
@@ -313,7 +345,7 @@ function renderTasks() {
   }).join('');
 
   const rows = tasks.length ? tasks.map(t => {
-    const staff = getStaff(t.assigneeId);
+    const assignee = getAssignee(t);
     const meta = STATUS_META[t.status];
     const cur = getCurrentDeadline(t);
     const changed = cur !== t.originalDeadline;
@@ -321,8 +353,8 @@ function renderTasks() {
     const link = getWorkLink(t);
     return `<tr>
       <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td><div class="assignee"><div class="avatar">${initials(staff.name)}</div><div><div>${staff.name}</div><div class="row-sub">${staff.role}</div></div></div></td>
-      <td><span class="badge badge-${meta.badge}">${meta.label}</span></td>
+      <td><div class="assignee"><div class="avatar">${initials(assignee.name)}</div><div><div>${assignee.name}</div><div class="row-sub">${assignee.role}</div></div></div></td>
+      <td><span class="badge badge-${meta.badge}">${meta.label}</span> ${t.status !== 'review' ? waitingTag(t) : ''}</td>
       <td style="min-width:120px">
         <div class="progress-track"><div class="progress-fill" style="width:${t.progress}%"></div></div>
         <div class="row-sub mono">${t.progress}%</div>
@@ -365,7 +397,8 @@ function renderTimeline() {
     <div class="timeline-legend">
       <span><i style="background:var(--text-faint)"></i>ยังไม่เริ่ม</span>
       <span><i style="background:var(--info)"></i>กำลังดำเนินการ</span>
-      <span><i style="background:var(--warning)"></i>รอตรวจ / แก้ไข</span>
+      <span><i style="background:var(--waiting)"></i>รอลูกค้าตรวจสอบ</span>
+      <span><i style="background:var(--warning)"></i>กำลังแก้ไข</span>
       <span><i style="background:var(--success)"></i>เสร็จสิ้น</span>
       <span><i style="background:var(--danger)"></i>เส้นวันนี้</span>
     </div>`;
@@ -384,10 +417,10 @@ function renderTimeline() {
     const e = parseDate(t.completedDate || getCurrentDeadline(t)).getTime();
     const left = ((s - min) / span) * 100;
     const width = Math.max(((e - s) / span) * 100, 2.5);
-    const staff = getStaff(t.assigneeId);
+    const assignee = getAssignee(t);
     return `
       <div class="gantt-row">
-        <div class="gantt-label">${t.name}<div class="row-sub">${staff.name}</div></div>
+        <div class="gantt-label">${t.name}<div class="row-sub">${assignee.name}</div></div>
         <div class="gantt-track" title="${fmtDate(t.startDate)} — ${fmtDate(t.completedDate || getCurrentDeadline(t))}">
           <div class="gantt-bar status-${t.status}" style="left:${left}%;width:${width}%">${t.progress}%</div>
           ${todayPct >= 0 && todayPct <= 100 ? `<div class="gantt-today" style="left:${todayPct}%"></div>` : ''}
@@ -415,7 +448,7 @@ function renderFiles() {
 
   const cards = files.length ? files.map(f => {
     const task = TASKS.find(t => t.id === f.taskId);
-    const staff = getStaff(task.assigneeId);
+    const uploader = getStaff(f.uploadedBy);
     const meta = FILE_STATUS_META[f.status];
     return `
       <div class="card file-card">
@@ -426,7 +459,7 @@ function renderFiles() {
             <span>${task.name}</span>
           </div>
         </div>
-        <div class="row-sub">ส่งโดย ${staff.name} · ${fmtDateShort(f.uploadedDate)}</div>
+        <div class="row-sub">ส่งโดย ${uploader.name} · ${fmtDateShort(f.uploadedDate)}</div>
         <span class="badge badge-${meta.badge}" style="width:fit-content">${meta.label}</span>
         ${f.comment ? `<div class="file-comment">${f.comment}</div>` : ''}
         <div class="file-actions">
@@ -509,69 +542,105 @@ function renderDelays() {
   const activeLate = withDelay.filter(x => x.t.status !== 'completed' && x.d.late).sort((a, b) => b.d.days - a.d.days);
   const historyLate = withDelay.filter(x => x.t.status === 'completed' && x.d.late).sort((a, b) => b.d.days - a.d.days);
 
+  const ourDelay = activeLate.filter(x => !isWaitingOnClient(x.t));
+  const clientWait = activeLate.filter(x => isWaitingOnClient(x.t));
+
   const byStaff = {};
-  activeLate.forEach(({ t, d }) => { byStaff[t.assigneeId] = (byStaff[t.assigneeId] || 0) + d.days; });
+  ourDelay.forEach(({ t, d }) => {
+    const a = getAssignee(t);
+    byStaff[a.id] = (byStaff[a.id] || 0) + d.days;
+  });
   const staffBars = Object.entries(byStaff).sort((a, b) => b[1] - a[1]);
   const maxStaffDays = staffBars.length ? staffBars[0][1] : 1;
 
-  const worst = activeLate[0];
+  const worstOur = ourDelay[0];
+  const worstClient = clientWait[0];
 
-  const callout = worst ? `
-    <div class="callout callout-danger" style="margin-bottom:20px">
+  let callouts = '';
+  if (worstOur) {
+    callouts += `
+    <div class="callout callout-danger" style="margin-bottom:14px">
       ${icon('alert')}
       <div>
-        <strong>งานล่าช้าที่สุดตอนนี้: ${worst.t.name}</strong>
-        <p>รับผิดชอบโดย ${getStaff(worst.t.assigneeId).name} — ${worst.d.label} จากกำหนดส่ง ${fmtDate(getCurrentDeadline(worst.t))} ควรติดตามด่วน</p>
+        <strong>ล่าช้าฝั่งเราที่สุดตอนนี้: ${worstOur.t.name}</strong>
+        <p>รับผิดชอบโดย ${getAssignee(worstOur.t).name} — ${worstOur.d.label} จากกำหนดส่ง ${fmtDate(getCurrentDeadline(worstOur.t))} ควรติดตามด่วน</p>
       </div>
-    </div>` : `
-    <div class="callout" style="margin-bottom:20px;background:var(--success-soft)">
+    </div>`;
+  }
+  if (worstClient) {
+    callouts += `
+    <div class="callout" style="margin-bottom:14px;background:var(--waiting-soft)">
+      ${icon('clock')}
+      <div>
+        <strong>รอลูกค้านานที่สุด: ${worstClient.t.name}</strong>
+        <p>${getWaitingNote(worstClient.t)} — รอมาแล้ว ${worstClient.d.days} วัน อาจต้องติดตามลูกค้าเพิ่มเติม</p>
+      </div>
+    </div>`;
+  }
+  if (!worstOur && !worstClient) {
+    callouts = `
+    <div class="callout" style="margin-bottom:14px;background:var(--success-soft)">
       ${icon('check')}
       <div><strong>ไม่มีงานล่าช้าในขณะนี้</strong><p>ทุกงานอยู่ในกำหนดเวลาที่ตกลงกันไว้</p></div>
     </div>`;
+  }
 
   const barsHtml = staffBars.length ? staffBars.map(([sid, days]) => {
-    const staff = getStaff(sid);
+    const s = getStaff(sid);
     return `
       <div class="delay-bar-row">
-        <div class="delay-bar-name">${staff.name}</div>
+        <div class="delay-bar-name">${s.name}</div>
         <div class="delay-bar-track"><div class="delay-bar-fill" style="width:${Math.round(days / maxStaffDays * 100)}%"></div></div>
         <div class="delay-bar-value">${days}วัน</div>
       </div>`;
-  }).join('') : `<div class="empty-state">${icon('inbox')}<p>ไม่มีข้อมูลความล่าช้า</p></div>`;
+  }).join('') : `<div class="empty-state">${icon('inbox')}<p>ไม่มีข้อมูลความล่าช้าฝั่งเรา</p></div>`;
 
-  const activeRows = activeLate.length ? activeLate.map(({ t, d }) => `
+  const ourRows = ourDelay.length ? ourDelay.map(({ t, d }) => `
     <tr>
       <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td><div class="assignee"><div class="avatar">${initials(getStaff(t.assigneeId).name)}</div>${getStaff(t.assigneeId).name}</div></td>
+      <td><div class="assignee"><div class="avatar">${initials(getAssignee(t).name)}</div>${getAssignee(t).name}</div></td>
       <td>${fmtDateShort(t.originalDeadline)}</td>
       <td>${fmtDateShort(getCurrentDeadline(t))}</td>
       <td><span class="delay-pill late">${d.label}</span></td>
       <td><span class="badge badge-${STATUS_META[t.status].badge}">${STATUS_META[t.status].label}</span></td>
-    </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state">${icon('check')}<p>ไม่มีงานที่กำลังล่าช้าอยู่ในขณะนี้</p></div></td></tr>`;
+    </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state">${icon('check')}<p>ไม่มีงานที่ล่าช้าฝั่งเราในขณะนี้</p></div></td></tr>`;
+
+  const clientRows = clientWait.length ? clientWait.map(({ t, d }) => `
+    <tr>
+      <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
+      <td>${getAssignee(t).name}</td>
+      <td style="max-width:220px">${getWaitingNote(t)}</td>
+      <td><span class="badge badge-waiting">รอมาแล้ว ${d.days} วัน</span></td>
+    </tr>`).join('') : `<tr><td colspan="4"><div class="empty-state">${icon('check')}<p>ไม่มีงานที่รอลูกค้าอยู่ในขณะนี้</p></div></td></tr>`;
 
   const historyRows = historyLate.length ? historyLate.map(({ t, d }) => `
     <tr>
       <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td>${getStaff(t.assigneeId).name}</td>
+      <td>${getAssignee(t).name}</td>
       <td>${fmtDateShort(getCurrentDeadline(t))}</td>
       <td>${fmtDateShort(t.completedDate)}</td>
       <td><span class="delay-pill late">${d.label}</span></td>
     </tr>`).join('') : `<tr><td colspan="5"><div class="empty-state"><p>ไม่มีประวัติการส่งงานล่าช้า</p></div></td></tr>`;
 
   document.getElementById('view-delays').innerHTML = `
-    ${callout}
+    ${callouts}
     <div class="grid two-col" style="margin-bottom:24px">
       <div class="card">
-        <div class="section-head"><div><h2>งานที่กำลังล่าช้าอยู่ตอนนี้</h2><div class="hint">เรียงจากล่าช้ามากไปน้อย</div></div></div>
+        <div class="section-head"><div><h2>ล่าช้าฝั่งเรา (ทีมงาน)</h2><div class="hint">เรียงจากล่าช้ามากไปน้อย</div></div></div>
         <div class="table-wrap" style="box-shadow:none">
           <table><thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>เดดไลน์เดิม</th><th>เดดไลน์ล่าสุด</th><th>ล่าช้า</th><th>สถานะ</th></tr></thead>
-          <tbody>${activeRows}</tbody></table>
+          <tbody>${ourRows}</tbody></table>
         </div>
       </div>
       <div class="card">
-        <div class="section-head"><div><h2>ล่าช้ารวมตามผู้รับผิดชอบ</h2><div class="hint">จำนวนวันล่าช้าสะสม (เฉพาะงานที่ยังไม่เสร็จ)</div></div></div>
+        <div class="section-head"><div><h2>ล่าช้ารวมตามผู้รับผิดชอบ</h2><div class="hint">จำนวนวันล่าช้าสะสม (เฉพาะที่เป็นความรับผิดชอบของเรา)</div></div></div>
         ${barsHtml}
       </div>
+    </div>
+    <div class="section-head"><div><h2>รอดำเนินการจากฝั่งลูกค้า</h2><div class="hint">งานที่เราส่งมอบแล้ว แต่ยังรอไฟล์/การอนุมัติ/ฟีดแบ็กจากลูกค้า</div></div></div>
+    <div class="table-wrap" style="margin-bottom:24px">
+      <table><thead><tr><th>งาน</th><th>ผู้ส่งงาน</th><th>รอเรื่องอะไร</th><th>ระยะเวลาที่รอ</th></tr></thead>
+      <tbody>${clientRows}</tbody></table>
     </div>
     <div class="section-head"><div><h2>ประวัติงานที่เคยส่งล่าช้า (เสร็จแล้ว)</h2></div></div>
     <div class="table-wrap">
@@ -584,21 +653,47 @@ function renderDelays() {
    RENDER: Contact & Requests
    ========================================================= */
 function renderContact() {
-  const staffCards = STAFF.map(s => `
-    <div class="card staff-card">
-      <div class="avatar">${initials(s.name)}</div>
+  const staffCards = staff.map(s => `
+    <div class="card staff-card side-us">
+      <div class="person-card-top">
+        <div class="avatar">${initials(s.name)}</div>
+        <div class="person-actions">
+          <button class="icon-btn-sm" data-action="edit-person" data-kind="staff" data-id="${s.id}" title="แก้ไข">${icon('edit')}</button>
+        </div>
+      </div>
       <div>
         <strong>${s.name}</strong>
         <div class="role">${s.role}</div>
       </div>
       <div class="staff-contact-row">${icon('mail')} <a href="mailto:${s.email}">${s.email}</a></div>
       <div class="staff-contact-row">${icon('phone')} <a href="tel:${s.phone.replace(/-/g,'')}">${s.phone}</a></div>
-      <div class="staff-contact-row">${icon('chat')} Line: ${s.line}</div>
+      <div class="staff-contact-row">${icon('chat')} Line: ${s.line || '—'}</div>
+    </div>`).join('');
+
+  const clientCards = clientTeam.map(c => `
+    <div class="card staff-card side-client">
+      <div class="person-card-top">
+        <div class="avatar">${initials(c.name)}</div>
+        <div class="person-actions">
+          <button class="icon-btn-sm" data-action="edit-person" data-kind="client" data-id="${c.id}" title="แก้ไข">${icon('edit')}</button>
+        </div>
+      </div>
+      <div>
+        <strong>${c.name}</strong>
+        <div class="role">${c.role}</div>
+      </div>
+      ${c.primary ? `<span class="tag-primary">ผู้ติดต่อหลัก</span>` : ''}
+      <div class="staff-contact-row">${icon('mail')} <a href="mailto:${c.email}">${c.email}</a></div>
+      <div class="staff-contact-row">${icon('phone')} <a href="tel:${c.phone.replace(/-/g,'')}">${c.phone}</a></div>
     </div>`).join('');
 
   const projectOptions = PROJECTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  const primaryContact = getPrimaryClientContact();
+  const requesterOptions = clientTeam.map(c => `<option value="${c.id}" ${primaryContact && c.id === primaryContact.id ? 'selected' : ''}>${c.name} (${c.role})</option>`).join('');
 
-  const reqList = allRequests().slice().sort((a, b) => b.submittedDate.localeCompare(a.submittedDate)).map(r => `
+  const reqList = allRequests().slice().sort((a, b) => b.submittedDate.localeCompare(a.submittedDate)).map(r => {
+    const requester = getClientPerson(r.requesterId);
+    return `
     <div class="request-item">
       <div>
         <h4>${r.subject}</h4>
@@ -608,20 +703,35 @@ function renderContact() {
           <span>หมวด: ${r.category}</span>
           <span>ความสำคัญ: ${r.priority}</span>
           ${r.desiredDate ? `<span>ต้องการภายใน: ${fmtDateShort(r.desiredDate)}</span>` : ''}
-          <span>ส่งเมื่อ ${fmtDateShort(r.submittedDate)}</span>
+          <span>ส่งโดย ${requester ? requester.name : 'ไม่ระบุ'} · ${fmtDateShort(r.submittedDate)}</span>
         </div>
       </div>
       <span class="badge badge-${r.status === 'รอดำเนินการ' ? 'warning' : r.status === 'รับทราบแล้ว' ? 'info' : 'success'}" style="height:fit-content">${r.status}</span>
-    </div>`).join('');
+    </div>`;
+  }).join('');
 
   document.getElementById('view-contact').innerHTML = `
-    <div class="section-head"><div><h2>ทีมงานที่ดูแลโปรเจกต์ของคุณ</h2><div class="hint">ติดต่อได้โดยตรงตามช่องทางด้านล่าง</div></div></div>
-    <div class="grid staff-grid" style="margin-bottom:28px">${staffCards}</div>
+    <div class="section-block">
+      <div class="section-head"><div><h2>ทีมงานฝั่งเรา</h2><div class="hint">ทีมที่ดูแลโปรเจกต์ของคุณ ติดต่อได้โดยตรงตามช่องทางด้านล่าง</div></div></div>
+      <div class="grid staff-grid">
+        ${staffCards}
+        <button class="add-person-card" data-action="add-person" data-kind="staff">${icon('plus')} เพิ่มทีมงาน</button>
+      </div>
+    </div>
+
+    <div class="section-block">
+      <div class="section-head"><div><h2>ทีมงานฝั่งคุณ</h2><div class="hint">รายชื่อผู้ติดต่อฝั่งลูกค้า ไม่ว่าจะติดต่อเราคนเดียวหรือมีทีม สามารถเพิ่ม/แก้ไขได้เอง</div></div></div>
+      <div class="grid staff-grid">
+        ${clientCards}
+        <button class="add-person-card" data-action="add-person" data-kind="client">${icon('plus')} เพิ่มผู้ติดต่อ</button>
+      </div>
+    </div>
 
     <div class="card" style="margin-bottom:24px">
       <div class="section-head"><div><h2>ส่งคำขอถึงทีมงาน</h2><div class="hint">แจ้งขอแก้ไขงาน ของานเพิ่ม หรือสอบถามความคืบหน้า พร้อมกำหนดวันที่ต้องการ</div></div></div>
       <form class="form-grid" data-form="request">
         <div class="form-field full"><label>หัวข้อ</label><input type="text" name="subject" placeholder="เช่น ขอแก้ไขสีปุ่มหน้าแรก" required></div>
+        <div class="form-field"><label>ผู้ส่งคำขอ</label><select name="requesterId">${requesterOptions}</select></div>
         <div class="form-field"><label>โปรเจกต์</label><select name="projectId">${projectOptions}</select></div>
         <div class="form-field"><label>ประเภทคำขอ</label>
           <select name="category">
@@ -646,7 +756,7 @@ function renderContact() {
    ========================================================= */
 function openTaskModal(id) {
   const t = TASKS.find(x => x.id === id);
-  const staff = getStaff(t.assigneeId);
+  const assignee = getAssignee(t);
   const meta = STATUS_META[t.status];
   const cur = getCurrentDeadline(t);
   const delay = getDelayInfo(t);
@@ -665,6 +775,8 @@ function openTaskModal(id) {
       <span class="badge badge-${FILE_STATUS_META[f.status].badge}">${FILE_STATUS_META[f.status].label}</span>
     </div>`).join('') : `<p class="row-sub">ยังไม่มีไฟล์แนบ</p>`;
 
+  const assigneeOptions = staff.map(s => `<option value="${s.id}" ${s.id === assignee.id ? 'selected' : ''}>${s.name} — ${s.role}</option>`).join('');
+
   document.getElementById('taskModal').innerHTML = `
     <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
       <div>
@@ -677,11 +789,7 @@ function openTaskModal(id) {
     <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
       <span class="badge badge-${meta.badge}">${meta.label}</span>
       <span class="delay-pill ${delay.late ? 'late' : 'ontime'}">${delay.label}</span>
-    </div>
-
-    <div class="assignee" style="margin-bottom:18px">
-      <div class="avatar">${initials(staff.name)}</div>
-      <div><div>${staff.name}</div><div class="row-sub">${staff.role} · ${staff.email}</div></div>
+      ${t.status !== 'review' ? waitingTag(t) : ''}
     </div>
 
     <div class="progress-track" style="margin-bottom:6px"><div class="progress-fill" style="width:${t.progress}%"></div></div>
@@ -692,14 +800,27 @@ function openTaskModal(id) {
       <div><div class="row-sub">เดดไลน์เดิม</div>${fmtDate(t.originalDeadline)}</div>
     </div>
 
-    <form data-form="update-deadline" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:20px">
+    <form data-form="update-assignee" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
+      <div class="form-field" style="flex:1"><label>ผู้รับผิดชอบ</label><select name="assigneeId">${assigneeOptions}</select></div>
+      <button class="btn btn-sm" type="submit">บันทึก</button>
+    </form>
+
+    <form data-form="update-deadline" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
       <div class="form-field" style="flex:1"><label>กำหนดการส่งงานล่าสุด</label><input type="date" name="deadline" value="${cur}"></div>
       <button class="btn btn-sm" type="submit">บันทึก</button>
     </form>
 
-    <form data-form="update-link" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:22px">
+    <form data-form="update-link" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
       <div class="form-field" style="flex:1"><label>ลิงก์งาน</label><input type="url" name="link" value="${link || ''}" placeholder="วางลิงก์ไฟล์งาน"></div>
       <button class="btn btn-sm" type="submit">บันทึก</button>
+    </form>
+
+    <form data-form="update-waiting" data-id="${t.id}" style="margin-bottom:22px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-soft)">
+      <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:10px">
+        <input type="checkbox" name="waiting" ${isWaitingOnClient(t) ? 'checked' : ''}> งานนี้กำลังรอฝั่งลูกค้าดำเนินการอยู่
+      </label>
+      <div class="form-field" style="margin-bottom:10px"><textarea name="note" rows="2" placeholder="เช่น รอไฟล์ภาพจากลูกค้า, รอการอนุมัติ...">${getWaitingNote(t)}</textarea></div>
+      <button class="btn btn-sm" type="submit">บันทึกสถานะการรอ</button>
     </form>
 
     <h3 style="font-size:13.5px;margin-bottom:8px">ประวัติการขอแก้ไข</h3>
@@ -710,6 +831,39 @@ function openTaskModal(id) {
 
   document.getElementById('modalBackdrop').classList.add('open');
 }
+
+/* =========================================================
+   Person (staff / client contact) edit modal
+   ========================================================= */
+function openPersonModal(kind, id) {
+  const isStaff = kind === 'staff';
+  const roster = isStaff ? staff : clientTeam;
+  const person = id ? roster.find(p => p.id === id) : null;
+  const title = person ? `แก้ไขข้อมูล${isStaff ? 'ทีมงาน' : 'ผู้ติดต่อ'}` : `เพิ่ม${isStaff ? 'ทีมงานฝั่งเรา' : 'ผู้ติดต่อฝั่งลูกค้า'}`;
+
+  document.getElementById('taskModal').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+      <h2 style="font-size:17px">${title}</h2>
+      <button class="icon-btn" data-action="close-modal">${icon('close')}</button>
+    </div>
+    <form data-form="save-person" data-kind="${kind}" data-id="${person ? person.id : ''}">
+      <div class="form-grid">
+        <div class="form-field full"><label>ชื่อ-นามสกุล</label><input type="text" name="name" value="${person ? person.name : ''}" required></div>
+        <div class="form-field full"><label>ตำแหน่ง${isStaff ? ' (เช่น PM, Producer, Developer, AE)' : ''}</label><input type="text" name="role" value="${person ? person.role : ''}" required></div>
+        <div class="form-field"><label>อีเมล</label><input type="email" name="email" value="${person ? person.email : ''}"></div>
+        <div class="form-field"><label>เบอร์โทร</label><input type="text" name="phone" value="${person ? person.phone : ''}"></div>
+        ${isStaff ? `<div class="form-field full"><label>Line ID</label><input type="text" name="line" value="${person ? (person.line || '') : ''}"></div>` : ''}
+        ${!isStaff ? `<div class="form-field full"><label style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--text)"><input type="checkbox" name="primary" ${person && person.primary ? 'checked' : ''}> ตั้งเป็นผู้ติดต่อหลัก</label></div>` : ''}
+      </div>
+      <div style="display:flex;justify-content:space-between;align-items:center;margin-top:20px">
+        ${person ? `<button type="button" class="btn btn-danger btn-sm" data-action="delete-person" data-kind="${kind}" data-id="${person.id}">${icon('trash')} ลบ</button>` : '<span></span>'}
+        <button class="btn btn-primary" type="submit">${icon('check')} บันทึก</button>
+      </div>
+    </form>`;
+
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
 function closeModal() { document.getElementById('modalBackdrop').classList.remove('open'); }
 
 /* =========================================================
@@ -723,6 +877,14 @@ function renderAll() {
   renderRevisions();
   renderDelays();
   renderContact();
+  renderClientChip();
+}
+
+function renderClientChip() {
+  const primary = getPrimaryClientContact();
+  document.getElementById('clientChipName').textContent = primary ? primary.name : 'ลูกค้า';
+  document.getElementById('clientChipCompany').textContent = CLIENT.name;
+  document.getElementById('clientChipAvatar').textContent = primary ? initials(primary.name) : initials(CLIENT.name);
 }
 
 const VIEW_META = {
@@ -731,8 +893,8 @@ const VIEW_META = {
   timeline: { title: 'Timeline', sub: 'มุมมองระยะเวลาของแต่ละงานเทียบกับวันนี้' },
   files: { title: 'File & Approval', sub: 'ส่งลิงก์งานและติดตามการอนุมัติไฟล์' },
   revisions: { title: 'Revision Tracking', sub: 'ติดตามจำนวนวันที่เพิ่มจากการขอแก้ไขงาน' },
-  delays: { title: 'Delay Report', sub: 'สรุปว่างานใดล่าช้า ล่าช้าเพราะใคร และล่าช้ากี่วัน' },
-  contact: { title: 'ติดต่อ & คำขอ', sub: 'ติดต่อเจ้าหน้าที่โดยตรง หรือส่งคำขอใหม่พร้อมกำหนดวันที่ต้องการ' },
+  delays: { title: 'Delay Report', sub: 'สรุปว่างานใดล่าช้าฝั่งเรา และงานใดกำลังรอฝั่งลูกค้า' },
+  contact: { title: 'ติดต่อ & คำขอ', sub: 'ทีมงานฝั่งเรา ทีมงานฝั่งคุณ และช่องทางส่งคำขอใหม่' },
 };
 
 function switchView(view) {
@@ -802,6 +964,12 @@ function init() {
     const openBtn = e.target.closest('[data-action="open-task"]');
     if (openBtn) { openTaskModal(openBtn.dataset.id); return; }
 
+    const editPersonBtn = e.target.closest('[data-action="edit-person"]');
+    if (editPersonBtn) { openPersonModal(editPersonBtn.dataset.kind, editPersonBtn.dataset.id); return; }
+
+    const addPersonBtn = e.target.closest('[data-action="add-person"]');
+    if (addPersonBtn) { openPersonModal(addPersonBtn.dataset.kind, null); return; }
+
     const approveBtn = e.target.closest('[data-action="approve-file"]');
     if (approveBtn) {
       fileOverrides[approveBtn.dataset.id] = { status: 'approved', comment: 'ลูกค้าอนุมัติไฟล์นี้แล้ว' };
@@ -819,8 +987,31 @@ function init() {
       return;
     }
   });
+
   document.getElementById('taskModal').addEventListener('click', e => {
-    if (e.target.closest('[data-action="close-modal"]')) closeModal();
+    if (e.target.closest('[data-action="close-modal"]')) { closeModal(); return; }
+
+    const delPersonBtn = e.target.closest('[data-action="delete-person"]');
+    if (delPersonBtn) {
+      const kind = delPersonBtn.dataset.kind;
+      const id = delPersonBtn.dataset.id;
+      if (kind === 'staff') {
+        const inUse = TASKS.some(t => (assigneeOverrides[t.id] || t.assigneeId) === id);
+        if (inUse) { toast('ไม่สามารถลบได้ เนื่องจากยังมีงานที่มอบหมายให้คนนี้อยู่ กรุณาเปลี่ยนผู้รับผิดชอบก่อน'); return; }
+        if (staff.length <= 1) { toast('ต้องมีทีมงานอย่างน้อย 1 คน'); return; }
+        staff = staff.filter(s => s.id !== id);
+        store.set('cp_staff', staff);
+      } else {
+        const inUse = allRequests().some(r => r.requesterId === id);
+        if (inUse) { toast('ไม่สามารถลบได้ เนื่องจากมีคำขอที่ส่งโดยผู้ติดต่อนี้อยู่'); return; }
+        if (clientTeam.length <= 1) { toast('ต้องมีผู้ติดต่อฝั่งลูกค้าอย่างน้อย 1 คน'); return; }
+        const wasPrimary = clientTeam.find(c => c.id === id)?.primary;
+        clientTeam = clientTeam.filter(c => c.id !== id);
+        if (wasPrimary && clientTeam.length) clientTeam[0].primary = true;
+        store.set('cp_client_team', clientTeam);
+      }
+      closeModal(); renderAll(); toast('ลบข้อมูลเรียบร้อยแล้ว');
+    }
   });
 
   // delegated form submits
@@ -839,7 +1030,7 @@ function init() {
       const fd = new FormData(form);
       const id = 'rx' + Date.now();
       extraRequests.push({
-        id, projectId: fd.get('projectId'), subject: fd.get('subject'), category: fd.get('category'),
+        id, projectId: fd.get('projectId'), requesterId: fd.get('requesterId'), subject: fd.get('subject'), category: fd.get('category'),
         priority: fd.get('priority'), desiredDate: fd.get('desiredDate') || '', description: fd.get('description'),
         status: 'รอดำเนินการ', submittedDate: TODAY_STR,
       });
@@ -848,20 +1039,67 @@ function init() {
       renderContact(); toast('ส่งคำขอถึงทีมงานเรียบร้อยแล้ว');
     }
   });
+
   document.getElementById('taskModal').addEventListener('submit', e => {
     e.preventDefault();
     const form = e.target;
     const id = form.dataset.id;
+
+    if (form.dataset.form === 'update-assignee') {
+      const val = new FormData(form).get('assigneeId');
+      assigneeOverrides[id] = val; store.set('cp_assignee_overrides', assigneeOverrides);
+      toast('เปลี่ยนผู้รับผิดชอบแล้ว');
+      renderAll(); openTaskModal(id); return;
+    }
     if (form.dataset.form === 'update-deadline') {
       const val = new FormData(form).get('deadline');
       if (val) { deadlineOverrides[id] = val; store.set('cp_deadline_overrides', deadlineOverrides); toast('อัปเดตกำหนดการส่งงานแล้ว'); }
+      renderAll(); openTaskModal(id); return;
     }
     if (form.dataset.form === 'update-link') {
       const val = new FormData(form).get('link');
       linkOverrides[id] = val; store.set('cp_link_overrides', linkOverrides); toast('อัปเดตลิงก์งานแล้ว');
+      renderAll(); openTaskModal(id); return;
     }
-    renderAll();
-    openTaskModal(id);
+    if (form.dataset.form === 'update-waiting') {
+      const fd = new FormData(form);
+      waitingOverrides[id] = fd.get('waiting') === 'on';
+      waitingNotes[id] = fd.get('note') || '';
+      store.set('cp_waiting_overrides', waitingOverrides);
+      store.set('cp_waiting_notes', waitingNotes);
+      toast('บันทึกสถานะการรอแล้ว');
+      renderAll(); openTaskModal(id); return;
+    }
+
+    if (form.dataset.form === 'save-person') {
+      const kind = form.dataset.kind;
+      const existingId = form.dataset.id;
+      const fd = new FormData(form);
+      const name = (fd.get('name') || '').trim();
+      const role = (fd.get('role') || '').trim();
+      if (!name || !role) { toast('กรุณากรอกชื่อและตำแหน่ง'); return; }
+
+      if (kind === 'staff') {
+        const data = { name, role, email: fd.get('email') || '', phone: fd.get('phone') || '', line: fd.get('line') || '' };
+        if (existingId) {
+          staff = staff.map(s => s.id === existingId ? { ...s, ...data } : s);
+        } else {
+          staff = [...staff, { id: 's' + Date.now(), ...data }];
+        }
+        store.set('cp_staff', staff);
+      } else {
+        const primary = fd.get('primary') === 'on';
+        const data = { name, role, email: fd.get('email') || '', phone: fd.get('phone') || '', primary };
+        if (existingId) {
+          clientTeam = clientTeam.map(c => c.id === existingId ? { ...c, ...data } : (primary ? { ...c, primary: false } : c));
+        } else {
+          if (primary) clientTeam = clientTeam.map(c => ({ ...c, primary: false }));
+          clientTeam = [...clientTeam, { id: 'ct' + Date.now(), ...data, primary: primary || clientTeam.length === 0 }];
+        }
+        store.set('cp_client_team', clientTeam);
+      }
+      closeModal(); renderAll(); toast('บันทึกข้อมูลเรียบร้อยแล้ว');
+    }
   });
 
   renderAll();
