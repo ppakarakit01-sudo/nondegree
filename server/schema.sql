@@ -13,8 +13,10 @@ CREATE TABLE IF NOT EXISTS staff (
   email TEXT UNIQUE NOT NULL,
   phone TEXT,
   line TEXT,
-  avatar_url TEXT
+  avatar_url TEXT,
+  password_hash TEXT
 );
+ALTER TABLE staff ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 CREATE TABLE IF NOT EXISTS client_contacts (
   id TEXT PRIMARY KEY,
@@ -24,8 +26,10 @@ CREATE TABLE IF NOT EXISTS client_contacts (
   email TEXT UNIQUE NOT NULL,
   phone TEXT,
   avatar_url TEXT,
-  is_primary BOOLEAN DEFAULT false
+  is_primary BOOLEAN DEFAULT false,
+  password_hash TEXT
 );
+ALTER TABLE client_contacts ADD COLUMN IF NOT EXISTS password_hash TEXT;
 
 CREATE TABLE IF NOT EXISTS projects (
   id TEXT PRIMARY KEY,

@@ -7,6 +7,7 @@ const { OAuth2Client } = require('google-auth-library');
 const pool = require('./db');
 const { initDb } = require('./db-init');
 const { sendTagEmail } = require('./email');
+const { hashPassword, verifyPassword } = require('./local-auth');
 
 const PORT = process.env.PORT || 3000;
 const BASE_URL = process.env.APP_BASE_URL || 'https://nondegree-production.up.railway.app';
@@ -97,6 +98,53 @@ app.get('/auth/google/callback', async (req, res) => {
     console.error('OAuth callback failed:', e.message);
     res.redirect('/?auth_error=1');
   }
+});
+
+app.post('/auth/register', async (req, res) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const password = req.body.password || '';
+  if (!email || password.length < 6) return res.status(400).json({ error: 'กรุณากรอกอีเมล และตั้งรหัสผ่านอย่างน้อย 6 ตัวอักษร' });
+
+  const staffRes = await pool.query('SELECT * FROM staff WHERE lower(email) = $1', [email]);
+  const contactRes = staffRes.rows.length ? { rows: [] } : await pool.query('SELECT * FROM client_contacts WHERE lower(email) = $1', [email]);
+
+  let row, role, table;
+  if (staffRes.rows.length) { row = staffRes.rows[0]; role = 'agency'; table = 'staff'; }
+  else if (contactRes.rows.length) { row = contactRes.rows[0]; role = 'client'; table = 'client_contacts'; }
+  else return res.status(403).json({ error: 'อีเมลนี้ยังไม่ได้รับสิทธิ์เข้าถึงระบบ กรุณาติดต่อผู้ดูแลระบบให้เพิ่มอีเมลของคุณก่อน' });
+
+  if (row.password_hash) return res.status(409).json({ error: 'บัญชีนี้ตั้งรหัสผ่านไปแล้ว กรุณาเข้าสู่ระบบแทน' });
+
+  const hash = hashPassword(password);
+  await pool.query(`UPDATE ${table} SET password_hash = $1 WHERE id = $2`, [hash, row.id]);
+
+  req.session.user = {
+    email: row.email, name: row.name, picture: row.avatar_url, role,
+    staffId: role === 'agency' ? row.id : null, clientContactId: role === 'client' ? row.id : null,
+  };
+  res.json({ ok: true });
+});
+
+app.post('/auth/login', async (req, res) => {
+  const email = (req.body.email || '').trim().toLowerCase();
+  const password = req.body.password || '';
+
+  const staffRes = await pool.query('SELECT * FROM staff WHERE lower(email) = $1', [email]);
+  const contactRes = staffRes.rows.length ? { rows: [] } : await pool.query('SELECT * FROM client_contacts WHERE lower(email) = $1', [email]);
+
+  let row, role;
+  if (staffRes.rows.length) { row = staffRes.rows[0]; role = 'agency'; }
+  else if (contactRes.rows.length) { row = contactRes.rows[0]; role = 'client'; }
+  else return res.status(401).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+
+  if (!row.password_hash) return res.status(409).json({ error: 'บัญชีนี้ยังไม่ได้ตั้งรหัสผ่าน กรุณาสมัครใช้งานครั้งแรกก่อน' });
+  if (!verifyPassword(password, row.password_hash)) return res.status(401).json({ error: 'อีเมลหรือรหัสผ่านไม่ถูกต้อง' });
+
+  req.session.user = {
+    email: row.email, name: row.name, picture: row.avatar_url, role,
+    staffId: role === 'agency' ? row.id : null, clientContactId: role === 'client' ? row.id : null,
+  };
+  res.json({ ok: true });
 });
 
 app.post('/auth/logout', (req, res) => {

@@ -16,12 +16,35 @@
   <div class="login-card">
     <div class="brand-mark" style="width:52px;height:52px;font-size:18px;margin:0 auto 18px">CP</div>
     <h1>Client Portal</h1>
-    <p>เข้าสู่ระบบด้วยบัญชี Google เพื่อดูสถานะงานและความคืบหน้าของโปรเจกต์</p>
-    <a class="btn btn-primary google-btn" href="/auth/google">
-      <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M21.35 11.1H12v2.8h5.35c-.25 1.4-1.6 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.9s2.65-5.9 5.85-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.75 3.6 14.6 2.6 12 2.6 6.9 2.6 2.75 6.75 2.75 11.85s4.15 9.25 9.25 9.25c5.35 0 8.9-3.75 8.9-9.05 0-.65-.05-1.15-.15-1.65z"/></svg>
-      เข้าสู่ระบบด้วย Google
-    </a>
+    <p>เข้าสู่ระบบเพื่อดูสถานะงานและความคืบหน้าของโปรเจกต์</p>
+
+    <div class="login-tabs">
+      <button class="login-tab active" data-tab="login">เข้าสู่ระบบ</button>
+      <button class="login-tab" data-tab="register">สมัครครั้งแรก</button>
+    </div>
+
+    <form id="loginForm" class="login-form">
+      <div class="form-field full"><input type="email" name="email" placeholder="อีเมล" required></div>
+      <div class="form-field full"><input type="password" name="password" placeholder="รหัสผ่าน" required></div>
+      <button class="btn btn-primary" type="submit" style="width:100%">เข้าสู่ระบบ</button>
+    </form>
+
+    <form id="registerForm" class="login-form" style="display:none">
+      <p style="font-size:12px;color:var(--text-muted);margin-bottom:12px;text-align:left">ใช้อีเมลที่ทีมงานเพิ่มคุณไว้ในระบบแล้วเท่านั้น (ทีมงานฝั่งเราหรือผู้ติดต่อฝั่งลูกค้า)</p>
+      <div class="form-field full"><input type="email" name="email" placeholder="อีเมล" required></div>
+      <div class="form-field full"><input type="password" name="password" placeholder="ตั้งรหัสผ่าน (อย่างน้อย 6 ตัวอักษร)" minlength="6" required></div>
+      <button class="btn btn-primary" type="submit" style="width:100%">สร้างรหัสผ่านและเข้าใช้งาน</button>
+    </form>
+
     <p class="login-note" id="loginNote"></p>
+
+    <div id="googleLoginBlock" style="display:none">
+      <div class="login-divider"><span>หรือ</span></div>
+      <a class="btn google-btn" href="/auth/google">
+        <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M21.35 11.1H12v2.8h5.35c-.25 1.4-1.6 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.9s2.65-5.9 5.85-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.75 3.6 14.6 2.6 12 2.6 6.9 2.6 2.75 6.75 2.75 11.85s4.15 9.25 9.25 9.25c5.35 0 8.9-3.75 8.9-9.05 0-.65-.05-1.15-.15-1.65z"/></svg>
+        เข้าสู่ระบบด้วย Google
+      </a>
+    </div>
   </div>
 </div>
 

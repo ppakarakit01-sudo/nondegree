@@ -834,19 +834,49 @@ function applyTheme(theme) {
 function showLogin(googleConfigured, authError) {
   document.getElementById('appShell').style.display = 'none';
   document.getElementById('loginScreen').style.display = 'flex';
+  document.getElementById('googleLoginBlock').style.display = googleConfigured ? 'block' : 'none';
+
   const note = document.getElementById('loginNote');
-  const btn = document.querySelector('.google-btn');
-  if (!googleConfigured) {
-    btn.style.display = 'none';
-    note.textContent = 'ยังไม่ได้ตั้งค่าระบบล็อกอิน Google (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET) กรุณาติดต่อผู้ดูแลระบบ';
-    return;
-  }
   const messages = {
     not_allowed: 'อีเมลนี้ยังไม่ได้รับสิทธิ์เข้าถึงระบบ กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มอีเมลของคุณในทีมงานหรือทีมลูกค้า',
     not_configured: 'ระบบล็อกอินยังไม่พร้อมใช้งาน',
     1: 'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
   };
+  note.className = 'login-note';
   note.textContent = authError ? (messages[authError] || messages[1]) : '';
+
+  document.querySelectorAll('.login-tab').forEach(tabBtn => {
+    tabBtn.addEventListener('click', () => {
+      document.querySelectorAll('.login-tab').forEach(b => b.classList.toggle('active', b === tabBtn));
+      document.getElementById('loginForm').style.display = tabBtn.dataset.tab === 'login' ? 'flex' : 'none';
+      document.getElementById('registerForm').style.display = tabBtn.dataset.tab === 'register' ? 'flex' : 'none';
+      note.textContent = '';
+    });
+  });
+
+  document.getElementById('loginForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    try {
+      await api('POST', '/auth/login', { email: fd.get('email'), password: fd.get('password') });
+      location.reload();
+    } catch (err) {
+      note.className = 'login-note';
+      note.textContent = err.message;
+    }
+  });
+
+  document.getElementById('registerForm').addEventListener('submit', async e => {
+    e.preventDefault();
+    const fd = new FormData(e.target);
+    try {
+      await api('POST', '/auth/register', { email: fd.get('email'), password: fd.get('password') });
+      location.reload();
+    } catch (err) {
+      note.className = 'login-note';
+      note.textContent = err.message;
+    }
+  });
 }
 
 /* ---------- Init ---------- */
