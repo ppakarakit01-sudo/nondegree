@@ -11,7 +11,21 @@
 </head>
 <body>
 
-<div class="app">
+<!-- Login gate -->
+<div class="login-screen" id="loginScreen">
+  <div class="login-card">
+    <div class="brand-mark" style="width:52px;height:52px;font-size:18px;margin:0 auto 18px">CP</div>
+    <h1>Client Portal</h1>
+    <p>เข้าสู่ระบบด้วยบัญชี Google เพื่อดูสถานะงานและความคืบหน้าของโปรเจกต์</p>
+    <a class="btn btn-primary google-btn" href="/auth/google">
+      <svg viewBox="0 0 24 24" width="18" height="18"><path fill="#fff" d="M21.35 11.1H12v2.8h5.35c-.25 1.4-1.6 4.1-5.35 4.1-3.2 0-5.85-2.65-5.85-5.9s2.65-5.9 5.85-5.9c1.85 0 3.05.8 3.75 1.45l2.55-2.45C16.75 3.6 14.6 2.6 12 2.6 6.9 2.6 2.75 6.75 2.75 11.85s4.15 9.25 9.25 9.25c5.35 0 8.9-3.75 8.9-9.05 0-.65-.05-1.15-.15-1.65z"/></svg>
+      เข้าสู่ระบบด้วย Google
+    </a>
+    <p class="login-note" id="loginNote"></p>
+  </div>
+</div>
+
+<div class="app" id="appShell" style="display:none">
 
   <!-- Sidebar -->
   <aside class="sidebar" id="sidebar">
@@ -54,11 +68,17 @@
 
     <div class="sidebar-bottom">
       <div class="project-picker">
-        <label>โปรเจกต์</label>
+        <div class="project-picker-head">
+          <label>โปรเจกต์</label>
+          <div class="project-picker-actions" id="projectPickerActions"></div>
+        </div>
         <select id="projectFilter"></select>
       </div>
       <button class="theme-toggle" id="themeToggle">
         <span class="nav-icon" data-icon="sun"></span> <span id="themeLabel">โหมดสว่าง</span>
+      </button>
+      <button class="theme-toggle" id="logoutBtn">
+        <span class="nav-icon" data-icon="close"></span> ออกจากระบบ
       </button>
     </div>
   </aside>
@@ -80,13 +100,13 @@
           <span class="nav-icon" data-icon="search"></span>
           <input type="text" id="globalSearch" placeholder="ค้นหางาน, ผู้รับผิดชอบ...">
         </div>
-        <div class="client-chip">
+        <button class="client-chip" id="clientChipBtn" title="แก้ไขรูปโปรไฟล์">
           <div class="avatar" id="clientChipAvatar">คณ</div>
           <div class="client-chip-text">
             <strong id="clientChipName">คุณลูกค้า</strong>
             <span id="clientChipCompany">Aroi Delight Co., Ltd.</span>
           </div>
-        </div>
+        </button>
       </div>
     </header>
 

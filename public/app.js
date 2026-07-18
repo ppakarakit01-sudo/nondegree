@@ -1,9 +1,6 @@
 /* =========================================================
-   Client Portal Dashboard — mock data + rendering (vanilla JS)
+   Client Portal Dashboard — talks to /api/* (Postgres-backed)
    ========================================================= */
-
-const TODAY = new Date('2026-07-18T00:00:00');
-const TODAY_STR = '2026-07-18';
 
 /* ---------- Icons (Feather-style, stroke based) ---------- */
 const ICONS = {
@@ -33,99 +30,14 @@ const ICONS = {
   inbox: '<polyline points="22 12 16 12 14 15 10 15 8 12 2 12"/><path d="M5.45 5.11 2 12v6a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2v-6l-3.45-6.89A2 2 0 0 0 16.76 4H7.24a2 2 0 0 0-1.79 1.11z"/>',
   edit: '<path d="M17 3a2.828 2.828 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5L17 3z"/>',
   trash: '<polyline points="3 6 5 6 21 6"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" y1="11" x2="10" y2="17"/><line x1="14" y1="11" x2="14" y2="17"/>',
+  tag: '<path d="M20.59 13.41 13 21l-9-9V3h9l8 8a2 2 0 0 1 0 2.82z"/><line x1="7.5" y1="7.5" x2="7.51" y2="7.5"/>',
+  folder: '<path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z"/>',
 };
 function icon(name) {
   return `<span class="nav-icon"><svg viewBox="0 0 24 24">${ICONS[name] || ''}</svg></span>`;
 }
 
-/* ---------- Mock data ---------- */
-const CLIENT = { name: 'Aroi Delight Co., Ltd.', industry: 'ธุรกิจร้านอาหาร' };
-
-const PROJECTS = [
-  { id: 'p1', name: 'เว็บไซต์ร้านอาหาร Aroi Delight', description: 'เว็บไซต์หลักของร้าน ครอบคลุมหน้า Landing, ระบบสั่งอาหารออนไลน์ และ SEO' },
-  { id: 'p2', name: 'บริการการตลาดออนไลน์ Aroi Delight', description: 'ดูแลการตลาดออนไลน์ประจำไตรมาส ครอบคลุมโฆษณา คอนเทนต์ และรายงานผลลัพธ์ — คนละทีมกับงานเว็บไซต์' },
-];
-
-const STAFF_SEED = [
-  { id: 's1', name: 'พีรพัฒน์ วงศ์', role: 'Project Manager (PM)', email: 'peerapat.pm@agency.co.th', phone: '089-123-4567', line: '@peerapat.pm' },
-  { id: 's2', name: 'สุชาดา อินทร์แก้ว', role: 'Producer & UI/UX Designer', email: 'suchada.d@agency.co.th', phone: '081-234-5678', line: '@suchada.design' },
-  { id: 's3', name: 'ธนกร ศรีสุข', role: 'Developer (Frontend)', email: 'thanakorn.dev@agency.co.th', phone: '082-345-6789', line: '@thanakorn.fe' },
-  { id: 's4', name: 'มนัสวี ชัยพร', role: 'Developer (Backend)', email: 'manasawee.dev@agency.co.th', phone: '083-456-7890', line: '@manasawee.be' },
-  { id: 's5', name: 'อรวรรณ พงษ์ไพบูลย์', role: 'QA & Content', email: 'orawan.qa@agency.co.th', phone: '084-567-8901', line: '@orawan.qa' },
-  { id: 's6', name: 'ชนากานต์ ทิพย์เนตร', role: 'Account Executive (AE)', email: 'chanakan.ae@agency.co.th', phone: '085-678-9012', line: '@chanakan.ae' },
-];
-
-const CLIENT_TEAM_SEED = [
-  { id: 'ct1', name: 'คุณกัญญา รักษ์ไพศาล', role: 'เจ้าของร้าน (ผู้อนุมัติหลัก)', email: 'kanya@aroidelight.com', phone: '081-111-2222', primary: true },
-  { id: 'ct2', name: 'คุณปวีณา ทองดี', role: 'ผู้จัดการฝ่ายการตลาด', email: 'paweena@aroidelight.com', phone: '082-222-3333', primary: false },
-];
-
-const TASKS = [
-  { id: 't1', projectId: 'p1', name: 'ออกแบบ UI หน้า Landing Page', assigneeId: 's2', status: 'completed',
-    startDate: '2026-06-20', originalDeadline: '2026-06-30', completedDate: '2026-07-03', progress: 100,
-    workLink: 'https://figma.com/file/aroi-landing-page',
-    revisions: [{ date: '2026-06-29', requestedBy: 'ลูกค้า', reason: 'ขอปรับโทนสีธีมให้เข้ากับโลโก้ร้าน', daysAdded: 2 }] },
-
-  { id: 't2', projectId: 'p1', name: 'พัฒนาโครงสร้างหน้าเว็บไซต์ (Frontend)', assigneeId: 's3', status: 'in_progress',
-    startDate: '2026-07-01', originalDeadline: '2026-07-20', completedDate: null, progress: 55,
-    workLink: 'https://github.com/aroi-delight/web-frontend', revisions: [] },
-
-  { id: 't3', projectId: 'p1', name: 'เชื่อมต่อระบบสั่งอาหารออนไลน์ (Backend)', assigneeId: 's4', status: 'in_progress',
-    startDate: '2026-06-25', originalDeadline: '2026-07-10', completedDate: null, progress: 70,
-    workLink: 'https://github.com/aroi-delight/order-api', revisions: [] },
-
-  { id: 't4', projectId: 'p1', name: 'เขียนคอนเทนต์และ SEO หน้าเมนูอาหาร', assigneeId: 's5', status: 'review',
-    startDate: '2026-07-05', originalDeadline: '2026-07-15', completedDate: null, progress: 90,
-    workLink: 'https://docs.google.com/document/aroi-menu-seo', revisions: [] },
-
-  { id: 't5', projectId: 'p1', name: 'ทดสอบระบบก่อนเปิดใช้งานจริง (QA)', assigneeId: 's5', status: 'not_started',
-    startDate: '2026-07-22', originalDeadline: '2026-07-28', completedDate: null, progress: 0,
-    workLink: '', revisions: [] },
-
-  { id: 't6', projectId: 'p1', name: 'ปรับแก้หน้า Landing Page รอบ 2', assigneeId: 's2', status: 'revision',
-    startDate: '2026-07-14', originalDeadline: '2026-07-16', completedDate: null, progress: 40,
-    workLink: 'https://figma.com/file/aroi-landing-page-v2',
-    revisions: [{ date: '2026-07-15', requestedBy: 'ลูกค้า', reason: 'รอรูปถ่ายอาหารชุดใหม่จากลูกค้าเพื่อใส่ในหน้าเว็บ', daysAdded: 3 }] },
-
-  { id: 't7', projectId: 'p2', name: 'วางแผนกลยุทธ์การตลาดออนไลน์ไตรมาส 3', assigneeId: 's6', status: 'completed',
-    startDate: '2026-06-10', originalDeadline: '2026-06-18', completedDate: '2026-06-17', progress: 100,
-    workLink: 'https://docs.google.com/document/marketing-strategy-q3', revisions: [] },
-
-  { id: 't8', projectId: 'p2', name: 'ผลิตคอนเทนต์และถ่ายภาพสำหรับโซเชียลมีเดีย', assigneeId: 's2', status: 'completed',
-    startDate: '2026-06-18', originalDeadline: '2026-06-28', completedDate: '2026-07-02', progress: 100,
-    workLink: 'https://drive.google.com/folder/aroi-social-content',
-    revisions: [{ date: '2026-06-27', requestedBy: 'ลูกค้า', reason: 'ขอเปลี่ยนธีมภาพถ่ายจากโทนอบอุ่นเป็นโทนสดใสให้เข้ากับแคมเปญซัมเมอร์', daysAdded: 1 }] },
-
-  { id: 't9', projectId: 'p2', name: 'บริหารจัดการแคมเปญโฆษณา Facebook & Instagram Ads', assigneeId: 's6', status: 'in_progress',
-    startDate: '2026-06-20', originalDeadline: '2026-07-05', completedDate: null, progress: 60,
-    workLink: 'https://business.facebook.com/adsmanager/aroi-delight', revisions: [] },
-
-  { id: 't10', projectId: 'p2', name: 'ออกแบบกราฟิกโปรโมชั่นและป้ายประชาสัมพันธ์หน้าร้าน', assigneeId: 's2', status: 'in_progress',
-    startDate: '2026-07-10', originalDeadline: '2026-07-25', completedDate: null, progress: 30,
-    workLink: 'https://figma.com/file/aroi-promo-graphics', revisions: [] },
-
-  { id: 't11', projectId: 'p2', name: 'วางแผนความร่วมมือกับ Influencer ท้องถิ่น', assigneeId: 's6', status: 'not_started',
-    startDate: '2026-07-21', originalDeadline: '2026-08-02', completedDate: null, progress: 0,
-    workLink: '', revisions: [] },
-
-  { id: 't12', projectId: 'p2', name: 'จัดทำรายงานสรุปผลลัพธ์แคมเปญและงบประมาณ', assigneeId: 's5', status: 'review',
-    startDate: '2026-07-08', originalDeadline: '2026-07-17', completedDate: null, progress: 95,
-    workLink: 'https://docs.google.com/document/campaign-performance-report', revisions: [] },
-];
-
-const FILES_SEED = [
-  { id: 'f1', taskId: 't1', name: 'landing-page-draft-v1.pdf', link: '#', uploadedBy: 's2', uploadedDate: '2026-06-28', status: 'rejected', comment: 'ขอปรับโทนสีให้เข้ากับโลโก้ร้านมากขึ้น และเพิ่มรูปเมนูแนะนำ' },
-  { id: 'f2', taskId: 't1', name: 'landing-page-final-v2.pdf', link: '#', uploadedBy: 's2', uploadedDate: '2026-07-03', status: 'approved', comment: 'อนุมัติแล้ว ใช้งานได้เลย' },
-  { id: 'f3', taskId: 't4', name: 'content-menu-seo-draft.docx', link: '#', uploadedBy: 's5', uploadedDate: '2026-07-16', status: 'pending', comment: '' },
-  { id: 'f4', taskId: 't7', name: 'marketing-strategy-brief-q3.pdf', link: '#', uploadedBy: 's6', uploadedDate: '2026-06-17', status: 'approved', comment: 'กลยุทธ์ชัดเจนดีมาก อนุมัติ' },
-  { id: 'f5', taskId: 't8', name: 'social-content-batch1.zip', link: '#', uploadedBy: 's2', uploadedDate: '2026-07-02', status: 'approved', comment: '' },
-  { id: 'f6', taskId: 't12', name: 'campaign-performance-report.pdf', link: '#', uploadedBy: 's5', uploadedDate: '2026-07-17', status: 'pending', comment: '' },
-];
-
-const REQUESTS_SEED = [
-  { id: 'r1', projectId: 'p1', requesterId: 'ct2', subject: 'ขอเปลี่ยนรูปภาพหน้าปกเว็บไซต์', category: 'แก้ไขงาน', priority: 'ปานกลาง', desiredDate: '2026-07-22', description: 'อยากเปลี่ยนรูปหน้าปกเป็นรูปที่ถ่ายใหม่ล่าสุดของทางร้าน', status: 'รับทราบแล้ว', submittedDate: '2026-07-15' },
-  { id: 'r2', projectId: 'p2', requesterId: 'ct1', subject: 'สอบถามความคืบหน้าแคมเปญโฆษณา', category: 'สอบถาม', priority: 'สูง', desiredDate: '', description: 'อยากทราบว่าแคมเปญ Facebook & Instagram Ads คืบหน้าถึงไหนแล้ว เพราะกระทบกำหนดโปรโมชั่นสาขาใหม่', status: 'รอดำเนินการ', submittedDate: '2026-07-17' },
-];
+const PROJECT_ICON_CHOICES = ['📁', '🌐', '📣', '🎨', '💻', '📱', '📊', '🛒', '🎬', '📷', '🍽️', '✉️'];
 
 const STATUS_META = {
   not_started: { label: 'ยังไม่เริ่ม', badge: 'neutral' },
@@ -140,65 +52,65 @@ const FILE_STATUS_META = {
   rejected: { label: 'ขอแก้ไข', badge: 'danger' },
 };
 
-/* ---------- Local persistence ---------- */
+/* ---------- API helper ---------- */
+async function api(method, url, body) {
+  const res = await fetch(url, {
+    method,
+    headers: body !== undefined ? { 'Content-Type': 'application/json' } : undefined,
+    body: body !== undefined ? JSON.stringify(body) : undefined,
+  });
+  let json = null;
+  try { json = await res.json(); } catch (e) { /* no body */ }
+  if (!res.ok) throw new Error((json && json.error) || res.statusText || 'request_failed');
+  return json;
+}
+
+/* ---------- Local (UI-only) persistence ---------- */
 const store = {
   get(key, fallback) { try { const v = JSON.parse(localStorage.getItem(key)); return v == null ? fallback : v; } catch (e) { return fallback; } },
   set(key, val) { localStorage.setItem(key, JSON.stringify(val)); },
 };
-let deadlineOverrides = store.get('cp_deadline_overrides', {});
-let linkOverrides = store.get('cp_link_overrides', {});
-let assigneeOverrides = store.get('cp_assignee_overrides', {});
-let waitingOverrides = store.get('cp_waiting_overrides', { t6: true });
-let waitingNotes = store.get('cp_waiting_notes', { t6: 'รอรูปถ่ายอาหารชุดใหม่จากลูกค้าเพื่อใช้ในหน้าเว็บ' });
-let fileOverrides = store.get('cp_file_overrides', {});
-let extraFiles = store.get('cp_extra_files', []);
-let extraRequests = store.get('cp_extra_requests', []);
-let staff = store.get('cp_staff', STAFF_SEED);
-let clientTeam = store.get('cp_client_team', CLIENT_TEAM_SEED);
 
 /* ---------- Date helpers ---------- */
 const THAI_MONTHS = ['ม.ค.', 'ก.พ.', 'มี.ค.', 'เม.ย.', 'พ.ค.', 'มิ.ย.', 'ก.ค.', 'ส.ค.', 'ก.ย.', 'ต.ค.', 'พ.ย.', 'ธ.ค.'];
 function parseDate(s) { return new Date(s + 'T00:00:00'); }
 function toISO(d) { return `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`; }
-function fmtDate(s) {
-  if (!s) return '—';
-  const d = parseDate(s);
-  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear()}`;
-}
-function fmtDateShort(s) {
-  if (!s) return '—';
-  const d = parseDate(s);
-  return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]}`;
-}
+function todayISO() { return toISO(new Date()); }
+function fmtDate(s) { if (!s) return '—'; const d = parseDate(s); return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]} ${d.getFullYear()}`; }
+function fmtDateShort(s) { if (!s) return '—'; const d = parseDate(s); return `${d.getDate()} ${THAI_MONTHS[d.getMonth()]}`; }
 function addDays(s, n) { const d = parseDate(s); d.setDate(d.getDate() + n); return toISO(d); }
 function diffDays(fromStr, toStr) { return Math.round((parseDate(toStr) - parseDate(fromStr)) / 86400000); }
 
-function getStaff(id) { return staff.find(s => s.id === id) || staff[0]; }
-function getAssignee(task) { return getStaff(assigneeOverrides[task.id] || task.assigneeId); }
-function getClientPerson(id) { return clientTeam.find(c => c.id === id); }
-function getPrimaryClientContact() { return clientTeam.find(c => c.primary) || clientTeam[0]; }
-function getProject(id) { return PROJECTS.find(p => p.id === id); }
+/* ---------- App state ---------- */
+const state = { view: 'dashboard', project: 'all', statusFilter: 'all', search: '', data: null };
+
+function isAgency() { return state.data.me.role === 'agency'; }
+function isClientRole() { return state.data.me.role === 'client'; }
+
+function getStaff(id) { return state.data.staff.find(s => s.id === id) || state.data.staff[0]; }
+function getAssignee(task) { return getStaff(task.assigneeId); }
+function getClientPerson(id) { return state.data.clientTeam.find(c => c.id === id); }
+function getPrimaryClientContact() { return state.data.clientTeam.find(c => c.primary) || state.data.clientTeam[0]; }
+function getProject(id) { return state.data.projects.find(p => p.id === id) || { id, name: '(ไม่พบโปรเจกต์)', icon: '📁' }; }
 
 function getCurrentDeadline(task) {
-  if (deadlineOverrides[task.id]) return deadlineOverrides[task.id];
+  if (task.deadlineOverride) return task.deadlineOverride;
   const extra = (task.revisions || []).reduce((sum, r) => sum + (r.daysAdded || 0), 0);
   return addDays(task.originalDeadline, extra);
 }
-function getWorkLink(task) { return linkOverrides[task.id] !== undefined ? linkOverrides[task.id] : task.workLink; }
-
+function getWorkLink(task) { return task.workLink || ''; }
 function isWaitingOnClient(task) {
-  const ov = waitingOverrides[task.id];
-  if (typeof ov === 'boolean') return ov;
+  if (typeof task.waitingOnClient === 'boolean') return task.waitingOnClient;
   return task.status === 'review';
 }
 function getWaitingNote(task) {
-  if (waitingNotes[task.id]) return waitingNotes[task.id];
+  if (task.waitingNote) return task.waitingNote;
   if (task.status === 'review') return 'ส่งงานให้ลูกค้าตรวจสอบแล้ว กำลังรอการอนุมัติ/ฟีดแบ็ก';
   return '';
 }
-
 function getDelayInfo(task) {
   const current = getCurrentDeadline(task);
+  const TODAY_STR = todayISO();
   if (task.status === 'completed') {
     const d = diffDays(current, task.completedDate);
     return { days: Math.max(0, d), late: d > 0, label: d > 0 ? `ส่งช้ากว่ากำหนด ${d} วัน` : d < 0 ? `ส่งก่อนกำหนด ${-d} วัน` : 'ส่งตรงเวลา' };
@@ -207,14 +119,8 @@ function getDelayInfo(task) {
   return { days: Math.max(0, d), late: d > 0, label: d > 0 ? `ล่าช้า ${d} วัน` : d === 0 ? 'ครบกำหนดวันนี้' : `เหลือเวลา ${-d} วัน` };
 }
 
-function allFiles() { return [...FILES_SEED, ...extraFiles].map(f => fileOverrides[f.id] ? { ...f, ...fileOverrides[f.id] } : f); }
-function allRequests() { return [...REQUESTS_SEED, ...extraRequests]; }
-
-/* ---------- App state ---------- */
-const state = { view: 'dashboard', project: 'all', statusFilter: 'all', search: '' };
-
 function filteredTasks() {
-  return TASKS.filter(t => {
+  return state.data.tasks.filter(t => {
     if (state.project !== 'all' && t.projectId !== state.project) return false;
     if (state.statusFilter !== 'all' && t.status !== state.statusFilter) return false;
     if (state.search) {
@@ -233,10 +139,17 @@ function toast(msg) {
   el.textContent = msg;
   el.classList.add('show');
   clearTimeout(toastTimer);
-  toastTimer = setTimeout(() => el.classList.remove('show'), 2600);
+  toastTimer = setTimeout(() => el.classList.remove('show'), 3200);
+}
+async function guarded(fn) {
+  try { await fn(); } catch (e) { toast(e.message || 'เกิดข้อผิดพลาด'); }
 }
 
-function initials(name) { const parts = name.trim().split(' '); return parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2); }
+function initials(name) { const parts = (name || '?').trim().split(' '); return parts.length > 1 ? parts[0][0] + parts[1][0] : name.slice(0, 2); }
+function avatarInner(person) {
+  if (person && person.avatarUrl) return `<img class="avatar-img" src="${person.avatarUrl}" alt="">`;
+  return initials(person ? person.name : '?');
+}
 function waitingTag(t) { return isWaitingOnClient(t) ? `<span class="badge badge-waiting">${icon('clock')} รอลูกค้า</span>` : ''; }
 
 /* =========================================================
@@ -260,23 +173,21 @@ function renderDashboard() {
 
   const kpiHtml = kpis.map(k => `
     <div class="card kpi-card">
-      <div class="kpi-top">
-        <div class="kpi-icon" style="background:var(--${k.color}-soft);color:var(--${k.color})">${icon(k.icon)}</div>
-      </div>
+      <div class="kpi-top"><div class="kpi-icon" style="background:var(--${k.color}-soft);color:var(--${k.color})">${icon(k.icon)}</div></div>
       <div class="kpi-value">${k.value}</div>
       <div class="kpi-label">${k.label}</div>
       <span class="kpi-delta" style="background:var(--bg-soft);color:var(--text-muted)">${k.delta}</span>
     </div>`).join('');
 
-  const projList = state.project === 'all' ? PROJECTS : PROJECTS.filter(p => p.id === state.project);
+  const projList = state.project === 'all' ? state.data.projects : state.data.projects.filter(p => p.id === state.project);
   const projRows = projList.map(p => {
-    const pt = TASKS.filter(t => t.projectId === p.id);
+    const pt = state.data.tasks.filter(t => t.projectId === p.id);
     const pc = pt.filter(t => t.status === 'completed').length;
     const pct = pt.length ? Math.round(pc / pt.length * 100) : 0;
     return `
       <div style="margin-bottom:16px">
         <div style="display:flex;justify-content:space-between;font-size:13px;margin-bottom:6px">
-          <strong>${p.name}</strong>
+          <strong>${p.icon} ${p.name}</strong>
           <span class="mono" style="color:var(--text-muted)">${pc}/${pt.length} งานเสร็จ · ${pct}%</span>
         </div>
         <div class="progress-track"><div class="progress-fill" style="width:${pct}%"></div></div>
@@ -288,21 +199,21 @@ function renderDashboard() {
 
   const upcoming = active
     .map(t => ({ t, d: getDelayInfo(t), dl: getCurrentDeadline(t) }))
-    .sort((a, b) => diffDays(TODAY_STR, a.dl) - diffDays(TODAY_STR, b.dl))
+    .sort((a, b) => diffDays(todayISO(), a.dl) - diffDays(todayISO(), b.dl))
     .slice(0, 6);
 
   const upcomingRows = upcoming.length ? upcoming.map(({ t, d, dl }) => {
     const assignee = getAssignee(t);
     return `<tr>
       <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td><div class="assignee"><div class="avatar">${initials(assignee.name)}</div><div><div>${assignee.name}</div><div class="row-sub">${assignee.role}</div></div></div></td>
+      <td><div class="assignee"><div class="avatar">${avatarInner(assignee)}</div><div><div>${assignee.name}</div><div class="row-sub">${assignee.role}</div></div></div></td>
       <td>${fmtDateShort(dl)}</td>
       <td><span class="delay-pill ${d.late ? 'late' : 'ontime'}">${d.label}</span> ${waitingTag(t)}</td>
     </tr>`;
   }).join('') : `<tr><td colspan="4"><div class="empty-state">${icon('inbox')}<p>ไม่มีงานที่ใกล้ถึงกำหนด</p></div></td></tr>`;
 
   document.getElementById('view-dashboard').innerHTML = `
-    <div class="client-projects-note">${icon('users')} กำลังทำงานร่วมกับ <strong>${CLIENT.name}</strong> ใน ${PROJECTS.length} โปรเจกต์</div>
+    <div class="client-projects-note">${icon('users')} กำลังทำงานร่วมกับ <strong>${state.data.client.name}</strong> ใน ${state.data.projects.length} โปรเจกต์</div>
     <div class="grid kpi-grid">${kpiHtml}</div>
     <div class="grid two-col" style="margin-bottom:22px">
       <div class="card">
@@ -327,10 +238,8 @@ function renderDashboard() {
     </div>
     <div class="section-head"><div><h2>งานใกล้ถึงกำหนดส่ง</h2><div class="hint">เรียงตามวันที่ใกล้ครบกำหนดที่สุด</div></div></div>
     <div class="table-wrap">
-      <table>
-        <thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>กำหนดส่ง</th><th>สถานะเวลา</th></tr></thead>
-        <tbody>${upcomingRows}</tbody>
-      </table>
+      <table><thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>กำหนดส่ง</th><th>สถานะเวลา</th></tr></thead>
+      <tbody>${upcomingRows}</tbody></table>
     </div>`;
 }
 
@@ -353,7 +262,7 @@ function renderTasks() {
     const link = getWorkLink(t);
     return `<tr>
       <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td><div class="assignee"><div class="avatar">${initials(assignee.name)}</div><div><div>${assignee.name}</div><div class="row-sub">${assignee.role}</div></div></div></td>
+      <td><div class="assignee"><div class="avatar">${avatarInner(assignee)}</div><div><div>${assignee.name}</div><div class="row-sub">${assignee.role}</div></div></div></td>
       <td><span class="badge badge-${meta.badge}">${meta.label}</span> ${t.status !== 'review' ? waitingTag(t) : ''}</td>
       <td style="min-width:120px">
         <div class="progress-track"><div class="progress-fill" style="width:${t.progress}%"></div></div>
@@ -368,7 +277,10 @@ function renderTasks() {
   }).join('') : `<tr><td colspan="9"><div class="empty-state">${icon('inbox')}<p>ไม่พบงานที่ตรงกับตัวกรอง</p></div></td></tr>`;
 
   document.getElementById('view-tasks').innerHTML = `
-    <div class="toolbar">${statusChips}</div>
+    <div class="toolbar" style="justify-content:space-between">
+      <div class="toolbar" style="margin:0">${statusChips}</div>
+      ${isAgency() ? `<button class="btn btn-primary btn-sm" data-action="add-task">${icon('plus')} เพิ่มงานใหม่</button>` : ''}
+    </div>
     <div class="table-wrap">
       <table>
         <thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>สถานะ</th><th>ความคืบหน้า</th><th>เดดไลน์เดิม</th><th>เดดไลน์ล่าสุด</th><th>สถานะเวลา</th><th>ลิงก์งาน</th><th></th></tr></thead>
@@ -386,6 +298,7 @@ function renderTimeline() {
     document.getElementById('view-timeline').innerHTML = `<div class="card"><div class="empty-state">${icon('inbox')}<p>ไม่พบงานที่ตรงกับตัวกรอง</p></div></div>`;
     return;
   }
+  const TODAY = parseDate(todayISO());
   const starts = tasks.map(t => parseDate(t.startDate).getTime());
   const ends = tasks.map(t => parseDate(t.completedDate || getCurrentDeadline(t)).getTime());
   let min = Math.min(...starts);
@@ -429,11 +342,7 @@ function renderTimeline() {
   }).join('');
 
   document.getElementById('view-timeline').innerHTML = `
-    <div class="card">
-      ${legend}
-      <div class="gantt-scale"><div></div><div class="gantt-scale-track">${ticks}</div></div>
-      <div class="gantt">${rows}</div>
-    </div>`;
+    <div class="card">${legend}<div class="gantt-scale"><div></div><div class="gantt-scale-track">${ticks}</div></div><div class="gantt">${rows}</div></div>`;
 }
 
 /* =========================================================
@@ -442,29 +351,26 @@ function renderTimeline() {
 function renderFiles() {
   const tasks = filteredTasks();
   const taskIds = new Set(tasks.map(t => t.id));
-  const files = allFiles().filter(f => taskIds.has(f.taskId)).sort((a, b) => b.uploadedDate.localeCompare(a.uploadedDate));
+  const files = state.data.files.filter(f => taskIds.has(f.taskId)).sort((a, b) => b.uploadedDate.localeCompare(a.uploadedDate));
 
   const taskOptions = tasks.map(t => `<option value="${t.id}">${t.name}</option>`).join('');
 
   const cards = files.length ? files.map(f => {
-    const task = TASKS.find(t => t.id === f.taskId);
+    const task = state.data.tasks.find(t => t.id === f.taskId);
     const uploader = getStaff(f.uploadedBy);
     const meta = FILE_STATUS_META[f.status];
     return `
       <div class="card file-card">
         <div class="file-head">
           <div class="file-icon">${icon('file')}</div>
-          <div class="file-meta">
-            <strong>${f.name}</strong>
-            <span>${task.name}</span>
-          </div>
+          <div class="file-meta"><strong>${f.name}</strong><span>${task ? task.name : ''}</span></div>
         </div>
         <div class="row-sub">ส่งโดย ${uploader.name} · ${fmtDateShort(f.uploadedDate)}</div>
         <span class="badge badge-${meta.badge}" style="width:fit-content">${meta.label}</span>
         ${f.comment ? `<div class="file-comment">${f.comment}</div>` : ''}
         <div class="file-actions">
           <a class="btn btn-sm" href="${f.link}" target="_blank" rel="noopener">${icon('external')} เปิดไฟล์</a>
-          ${f.status === 'pending' ? `
+          ${f.status === 'pending' && isClientRole() ? `
             <button class="btn btn-sm btn-success" data-action="approve-file" data-id="${f.id}">${icon('check')} อนุมัติ</button>
             <button class="btn btn-sm btn-danger" data-action="reject-file" data-id="${f.id}">${icon('close')} ขอแก้ไข</button>` : ''}
         </div>
@@ -472,6 +378,7 @@ function renderFiles() {
   }).join('') : `<div class="card"><div class="empty-state">${icon('inbox')}<p>ยังไม่มีไฟล์งานในโปรเจกต์นี้</p></div></div>`;
 
   document.getElementById('view-files').innerHTML = `
+    ${isAgency() ? `
     <div class="card" style="margin-bottom:20px">
       <div class="section-head"><div><h2>ส่งลิงก์งานใหม่</h2><div class="hint">แนบลิงก์ไฟล์หรือผลงานเพื่อให้ลูกค้าตรวจและอนุมัติ</div></div></div>
       <form class="add-link-form" data-form="add-link">
@@ -480,7 +387,7 @@ function renderFiles() {
         <input type="url" name="link" placeholder="วางลิงก์ไฟล์งาน (Google Drive, Figma, GitHub...)" required>
         <button class="btn btn-primary" type="submit">${icon('plus')} ส่งลิงก์</button>
       </form>
-    </div>
+    </div>` : ''}
     <div class="grid file-grid">${cards}</div>`;
 }
 
@@ -496,21 +403,9 @@ function renderRevisions() {
   const totalDays = rows.reduce((s, x) => s + x.r.daysAdded, 0);
   const summary = `
     <div class="grid kpi-grid" style="margin-bottom:22px">
-      <div class="card kpi-card">
-        <div class="kpi-icon" style="background:var(--warning-soft);color:var(--warning)">${icon('revision')}</div>
-        <div class="kpi-value">${rows.length}</div>
-        <div class="kpi-label">คำขอแก้ไขทั้งหมด</div>
-      </div>
-      <div class="card kpi-card">
-        <div class="kpi-icon" style="background:var(--danger-soft);color:var(--danger)">${icon('clock')}</div>
-        <div class="kpi-value">${totalDays} วัน</div>
-        <div class="kpi-label">รวมวันที่เพิ่มจากเดดไลน์เดิม</div>
-      </div>
-      <div class="card kpi-card">
-        <div class="kpi-icon" style="background:var(--info-soft);color:var(--info)">${icon('list')}</div>
-        <div class="kpi-value">${rows.length ? Math.round(totalDays / rows.length * 10) / 10 : 0}</div>
-        <div class="kpi-label">วันเฉลี่ยต่อคำขอ</div>
-      </div>
+      <div class="card kpi-card"><div class="kpi-icon" style="background:var(--warning-soft);color:var(--warning)">${icon('revision')}</div><div class="kpi-value">${rows.length}</div><div class="kpi-label">คำขอแก้ไขทั้งหมด</div></div>
+      <div class="card kpi-card"><div class="kpi-icon" style="background:var(--danger-soft);color:var(--danger)">${icon('clock')}</div><div class="kpi-value">${totalDays} วัน</div><div class="kpi-label">รวมวันที่เพิ่มจากเดดไลน์เดิม</div></div>
+      <div class="card kpi-card"><div class="kpi-icon" style="background:var(--info-soft);color:var(--info)">${icon('list')}</div><div class="kpi-value">${rows.length ? Math.round(totalDays / rows.length * 10) / 10 : 0}</div><div class="kpi-label">วันเฉลี่ยต่อคำขอ</div></div>
     </div>`;
 
   const body = rows.length ? rows.map(({ t, r }) => `
@@ -523,14 +418,8 @@ function renderRevisions() {
       <td>${fmtDateShort(t.originalDeadline)} → <strong>${fmtDateShort(getCurrentDeadline(t))}</strong></td>
     </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state">${icon('inbox')}<p>ยังไม่มีคำขอแก้ไขงานในโปรเจกต์นี้</p></div></td></tr>`;
 
-  document.getElementById('view-revisions').innerHTML = `
-    ${summary}
-    <div class="table-wrap">
-      <table>
-        <thead><tr><th>งาน</th><th>ผู้ขอแก้ไข</th><th>วันที่ขอ</th><th>เหตุผล</th><th>วันที่เพิ่ม</th><th>เดดไลน์เดิม → ใหม่</th></tr></thead>
-        <tbody>${body}</tbody>
-      </table>
-    </div>`;
+  document.getElementById('view-revisions').innerHTML = `${summary}
+    <div class="table-wrap"><table><thead><tr><th>งาน</th><th>ผู้ขอแก้ไข</th><th>วันที่ขอ</th><th>เหตุผล</th><th>วันที่เพิ่ม</th><th>เดดไลน์เดิม → ใหม่</th></tr></thead><tbody>${body}</tbody></table></div>`;
 }
 
 /* =========================================================
@@ -546,10 +435,7 @@ function renderDelays() {
   const clientWait = activeLate.filter(x => isWaitingOnClient(x.t));
 
   const byStaff = {};
-  ourDelay.forEach(({ t, d }) => {
-    const a = getAssignee(t);
-    byStaff[a.id] = (byStaff[a.id] || 0) + d.days;
-  });
+  ourDelay.forEach(({ t, d }) => { const a = getAssignee(t); byStaff[a.id] = (byStaff[a.id] || 0) + d.days; });
   const staffBars = Object.entries(byStaff).sort((a, b) => b[1] - a[1]);
   const maxStaffDays = staffBars.length ? staffBars[0][1] : 1;
 
@@ -558,79 +444,45 @@ function renderDelays() {
 
   let callouts = '';
   if (worstOur) {
-    callouts += `
-    <div class="callout callout-danger" style="margin-bottom:14px">
-      ${icon('alert')}
-      <div>
-        <strong>ล่าช้าฝั่งเราที่สุดตอนนี้: ${worstOur.t.name}</strong>
-        <p>รับผิดชอบโดย ${getAssignee(worstOur.t).name} — ${worstOur.d.label} จากกำหนดส่ง ${fmtDate(getCurrentDeadline(worstOur.t))} ควรติดตามด่วน</p>
-      </div>
-    </div>`;
+    callouts += `<div class="callout callout-danger" style="margin-bottom:14px">${icon('alert')}<div><strong>ล่าช้าฝั่งเราที่สุดตอนนี้: ${worstOur.t.name}</strong><p>รับผิดชอบโดย ${getAssignee(worstOur.t).name} — ${worstOur.d.label} จากกำหนดส่ง ${fmtDate(getCurrentDeadline(worstOur.t))} ควรติดตามด่วน</p></div></div>`;
   }
   if (worstClient) {
-    callouts += `
-    <div class="callout" style="margin-bottom:14px;background:var(--waiting-soft)">
-      ${icon('clock')}
-      <div>
-        <strong>รอลูกค้านานที่สุด: ${worstClient.t.name}</strong>
-        <p>${getWaitingNote(worstClient.t)} — รอมาแล้ว ${worstClient.d.days} วัน อาจต้องติดตามลูกค้าเพิ่มเติม</p>
-      </div>
-    </div>`;
+    callouts += `<div class="callout" style="margin-bottom:14px;background:var(--waiting-soft)">${icon('clock')}<div><strong>รอลูกค้านานที่สุด: ${worstClient.t.name}</strong><p>${getWaitingNote(worstClient.t)} — รอมาแล้ว ${worstClient.d.days} วัน อาจต้องติดตามลูกค้าเพิ่มเติม</p></div></div>`;
   }
   if (!worstOur && !worstClient) {
-    callouts = `
-    <div class="callout" style="margin-bottom:14px;background:var(--success-soft)">
-      ${icon('check')}
-      <div><strong>ไม่มีงานล่าช้าในขณะนี้</strong><p>ทุกงานอยู่ในกำหนดเวลาที่ตกลงกันไว้</p></div>
-    </div>`;
+    callouts = `<div class="callout" style="margin-bottom:14px;background:var(--success-soft)">${icon('check')}<div><strong>ไม่มีงานล่าช้าในขณะนี้</strong><p>ทุกงานอยู่ในกำหนดเวลาที่ตกลงกันไว้</p></div></div>`;
   }
 
   const barsHtml = staffBars.length ? staffBars.map(([sid, days]) => {
     const s = getStaff(sid);
-    return `
-      <div class="delay-bar-row">
-        <div class="delay-bar-name">${s.name}</div>
-        <div class="delay-bar-track"><div class="delay-bar-fill" style="width:${Math.round(days / maxStaffDays * 100)}%"></div></div>
-        <div class="delay-bar-value">${days}วัน</div>
-      </div>`;
+    return `<div class="delay-bar-row"><div class="delay-bar-name">${s.name}</div><div class="delay-bar-track"><div class="delay-bar-fill" style="width:${Math.round(days / maxStaffDays * 100)}%"></div></div><div class="delay-bar-value">${days}วัน</div></div>`;
   }).join('') : `<div class="empty-state">${icon('inbox')}<p>ไม่มีข้อมูลความล่าช้าฝั่งเรา</p></div>`;
 
   const ourRows = ourDelay.length ? ourDelay.map(({ t, d }) => `
-    <tr>
-      <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td><div class="assignee"><div class="avatar">${initials(getAssignee(t).name)}</div>${getAssignee(t).name}</div></td>
-      <td>${fmtDateShort(t.originalDeadline)}</td>
-      <td>${fmtDateShort(getCurrentDeadline(t))}</td>
-      <td><span class="delay-pill late">${d.label}</span></td>
-      <td><span class="badge badge-${STATUS_META[t.status].badge}">${STATUS_META[t.status].label}</span></td>
-    </tr>`).join('') : `<tr><td colspan="6"><div class="empty-state">${icon('check')}<p>ไม่มีงานที่ล่าช้าฝั่งเราในขณะนี้</p></div></td></tr>`;
+    <tr><td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
+    <td><div class="assignee"><div class="avatar">${avatarInner(getAssignee(t))}</div>${getAssignee(t).name}</div></td>
+    <td>${fmtDateShort(t.originalDeadline)}</td><td>${fmtDateShort(getCurrentDeadline(t))}</td>
+    <td><span class="delay-pill late">${d.label}</span></td><td><span class="badge badge-${STATUS_META[t.status].badge}">${STATUS_META[t.status].label}</span></td></tr>`).join('') :
+    `<tr><td colspan="6"><div class="empty-state">${icon('check')}<p>ไม่มีงานที่ล่าช้าฝั่งเราในขณะนี้</p></div></td></tr>`;
 
   const clientRows = clientWait.length ? clientWait.map(({ t, d }) => `
-    <tr>
-      <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td>${getAssignee(t).name}</td>
-      <td style="max-width:220px">${getWaitingNote(t)}</td>
-      <td><span class="badge badge-waiting">รอมาแล้ว ${d.days} วัน</span></td>
-    </tr>`).join('') : `<tr><td colspan="4"><div class="empty-state">${icon('check')}<p>ไม่มีงานที่รอลูกค้าอยู่ในขณะนี้</p></div></td></tr>`;
+    <tr><td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
+    <td>${getAssignee(t).name}</td><td style="max-width:220px">${getWaitingNote(t)}</td>
+    <td><span class="badge badge-waiting">รอมาแล้ว ${d.days} วัน</span></td></tr>`).join('') :
+    `<tr><td colspan="4"><div class="empty-state">${icon('check')}<p>ไม่มีงานที่รอลูกค้าอยู่ในขณะนี้</p></div></td></tr>`;
 
   const historyRows = historyLate.length ? historyLate.map(({ t, d }) => `
-    <tr>
-      <td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
-      <td>${getAssignee(t).name}</td>
-      <td>${fmtDateShort(getCurrentDeadline(t))}</td>
-      <td>${fmtDateShort(t.completedDate)}</td>
-      <td><span class="delay-pill late">${d.label}</span></td>
-    </tr>`).join('') : `<tr><td colspan="5"><div class="empty-state"><p>ไม่มีประวัติการส่งงานล่าช้า</p></div></td></tr>`;
+    <tr><td><div class="row-name">${t.name}</div><div class="row-sub">${getProject(t.projectId).name}</div></td>
+    <td>${getAssignee(t).name}</td><td>${fmtDateShort(getCurrentDeadline(t))}</td><td>${fmtDateShort(t.completedDate)}</td>
+    <td><span class="delay-pill late">${d.label}</span></td></tr>`).join('') :
+    `<tr><td colspan="5"><div class="empty-state"><p>ไม่มีประวัติการส่งงานล่าช้า</p></div></td></tr>`;
 
   document.getElementById('view-delays').innerHTML = `
     ${callouts}
     <div class="grid two-col" style="margin-bottom:24px">
       <div class="card">
         <div class="section-head"><div><h2>ล่าช้าฝั่งเรา (ทีมงาน)</h2><div class="hint">เรียงจากล่าช้ามากไปน้อย</div></div></div>
-        <div class="table-wrap" style="box-shadow:none">
-          <table><thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>เดดไลน์เดิม</th><th>เดดไลน์ล่าสุด</th><th>ล่าช้า</th><th>สถานะ</th></tr></thead>
-          <tbody>${ourRows}</tbody></table>
-        </div>
+        <div class="table-wrap" style="box-shadow:none"><table><thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>เดดไลน์เดิม</th><th>เดดไลน์ล่าสุด</th><th>ล่าช้า</th><th>สถานะ</th></tr></thead><tbody>${ourRows}</tbody></table></div>
       </div>
       <div class="card">
         <div class="section-head"><div><h2>ล่าช้ารวมตามผู้รับผิดชอบ</h2><div class="hint">จำนวนวันล่าช้าสะสม (เฉพาะที่เป็นความรับผิดชอบของเรา)</div></div></div>
@@ -638,70 +490,51 @@ function renderDelays() {
       </div>
     </div>
     <div class="section-head"><div><h2>รอดำเนินการจากฝั่งลูกค้า</h2><div class="hint">งานที่เราส่งมอบแล้ว แต่ยังรอไฟล์/การอนุมัติ/ฟีดแบ็กจากลูกค้า</div></div></div>
-    <div class="table-wrap" style="margin-bottom:24px">
-      <table><thead><tr><th>งาน</th><th>ผู้ส่งงาน</th><th>รอเรื่องอะไร</th><th>ระยะเวลาที่รอ</th></tr></thead>
-      <tbody>${clientRows}</tbody></table>
-    </div>
+    <div class="table-wrap" style="margin-bottom:24px"><table><thead><tr><th>งาน</th><th>ผู้ส่งงาน</th><th>รอเรื่องอะไร</th><th>ระยะเวลาที่รอ</th></tr></thead><tbody>${clientRows}</tbody></table></div>
     <div class="section-head"><div><h2>ประวัติงานที่เคยส่งล่าช้า (เสร็จแล้ว)</h2></div></div>
-    <div class="table-wrap">
-      <table><thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>เดดไลน์ล่าสุด</th><th>วันที่ส่งจริง</th><th>ผลลัพธ์</th></tr></thead>
-      <tbody>${historyRows}</tbody></table>
-    </div>`;
+    <div class="table-wrap"><table><thead><tr><th>งาน</th><th>ผู้รับผิดชอบ</th><th>เดดไลน์ล่าสุด</th><th>วันที่ส่งจริง</th><th>ผลลัพธ์</th></tr></thead><tbody>${historyRows}</tbody></table></div>`;
 }
 
 /* =========================================================
    RENDER: Contact & Requests
    ========================================================= */
 function renderContact() {
-  const staffCards = staff.map(s => `
+  const staffCards = state.data.staff.map(s => `
     <div class="card staff-card side-us">
       <div class="person-card-top">
-        <div class="avatar">${initials(s.name)}</div>
-        <div class="person-actions">
-          <button class="icon-btn-sm" data-action="edit-person" data-kind="staff" data-id="${s.id}" title="แก้ไข">${icon('edit')}</button>
-        </div>
+        <div class="avatar">${avatarInner(s)}</div>
+        ${isAgency() ? `<div class="person-actions"><button class="icon-btn-sm" data-action="edit-person" data-kind="staff" data-id="${s.id}" title="แก้ไข">${icon('edit')}</button></div>` : ''}
       </div>
-      <div>
-        <strong>${s.name}</strong>
-        <div class="role">${s.role}</div>
-      </div>
+      <div><strong>${s.name}</strong><div class="role">${s.role}</div></div>
       <div class="staff-contact-row">${icon('mail')} <a href="mailto:${s.email}">${s.email}</a></div>
-      <div class="staff-contact-row">${icon('phone')} <a href="tel:${s.phone.replace(/-/g,'')}">${s.phone}</a></div>
+      <div class="staff-contact-row">${icon('phone')} <a href="tel:${(s.phone || '').replace(/-/g, '')}">${s.phone || '—'}</a></div>
       <div class="staff-contact-row">${icon('chat')} Line: ${s.line || '—'}</div>
     </div>`).join('');
 
-  const clientCards = clientTeam.map(c => `
+  const clientCards = state.data.clientTeam.map(c => `
     <div class="card staff-card side-client">
       <div class="person-card-top">
-        <div class="avatar">${initials(c.name)}</div>
-        <div class="person-actions">
-          <button class="icon-btn-sm" data-action="edit-person" data-kind="client" data-id="${c.id}" title="แก้ไข">${icon('edit')}</button>
-        </div>
+        <div class="avatar">${avatarInner(c)}</div>
+        <div class="person-actions"><button class="icon-btn-sm" data-action="edit-person" data-kind="client" data-id="${c.id}" title="แก้ไข">${icon('edit')}</button></div>
       </div>
-      <div>
-        <strong>${c.name}</strong>
-        <div class="role">${c.role}</div>
-      </div>
+      <div><strong>${c.name}</strong><div class="role">${c.role}</div></div>
       ${c.primary ? `<span class="tag-primary">ผู้ติดต่อหลัก</span>` : ''}
       <div class="staff-contact-row">${icon('mail')} <a href="mailto:${c.email}">${c.email}</a></div>
-      <div class="staff-contact-row">${icon('phone')} <a href="tel:${c.phone.replace(/-/g,'')}">${c.phone}</a></div>
+      <div class="staff-contact-row">${icon('phone')} <a href="tel:${(c.phone || '').replace(/-/g, '')}">${c.phone || '—'}</a></div>
     </div>`).join('');
 
-  const projectOptions = PROJECTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
+  const projectOptions = state.data.projects.map(p => `<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
   const primaryContact = getPrimaryClientContact();
-  const requesterOptions = clientTeam.map(c => `<option value="${c.id}" ${primaryContact && c.id === primaryContact.id ? 'selected' : ''}>${c.name} (${c.role})</option>`).join('');
+  const requesterOptions = state.data.clientTeam.map(c => `<option value="${c.id}" ${primaryContact && c.id === primaryContact.id ? 'selected' : ''}>${c.name} (${c.role})</option>`).join('');
 
-  const reqList = allRequests().slice().sort((a, b) => b.submittedDate.localeCompare(a.submittedDate)).map(r => {
+  const reqList = state.data.requests.slice().sort((a, b) => b.submittedDate.localeCompare(a.submittedDate)).map(r => {
     const requester = getClientPerson(r.requesterId);
     return `
     <div class="request-item">
       <div>
-        <h4>${r.subject}</h4>
-        <p>${r.description}</p>
+        <h4>${r.subject}</h4><p>${r.description}</p>
         <div class="meta">
-          <span>${getProject(r.projectId).name}</span>
-          <span>หมวด: ${r.category}</span>
-          <span>ความสำคัญ: ${r.priority}</span>
+          <span>${getProject(r.projectId).name}</span><span>หมวด: ${r.category}</span><span>ความสำคัญ: ${r.priority}</span>
           ${r.desiredDate ? `<span>ต้องการภายใน: ${fmtDateShort(r.desiredDate)}</span>` : ''}
           <span>ส่งโดย ${requester ? requester.name : 'ไม่ระบุ'} · ${fmtDateShort(r.submittedDate)}</span>
         </div>
@@ -713,40 +546,25 @@ function renderContact() {
   document.getElementById('view-contact').innerHTML = `
     <div class="section-block">
       <div class="section-head"><div><h2>ทีมงานฝั่งเรา</h2><div class="hint">ทีมที่ดูแลโปรเจกต์ของคุณ ติดต่อได้โดยตรงตามช่องทางด้านล่าง</div></div></div>
-      <div class="grid staff-grid">
-        ${staffCards}
-        <button class="add-person-card" data-action="add-person" data-kind="staff">${icon('plus')} เพิ่มทีมงาน</button>
-      </div>
+      <div class="grid staff-grid">${staffCards}${isAgency() ? `<button class="add-person-card" data-action="add-person" data-kind="staff">${icon('plus')} เพิ่มทีมงาน</button>` : ''}</div>
     </div>
-
     <div class="section-block">
       <div class="section-head"><div><h2>ทีมงานฝั่งคุณ</h2><div class="hint">รายชื่อผู้ติดต่อฝั่งลูกค้า ไม่ว่าจะติดต่อเราคนเดียวหรือมีทีม สามารถเพิ่ม/แก้ไขได้เอง</div></div></div>
-      <div class="grid staff-grid">
-        ${clientCards}
-        <button class="add-person-card" data-action="add-person" data-kind="client">${icon('plus')} เพิ่มผู้ติดต่อ</button>
-      </div>
+      <div class="grid staff-grid">${clientCards}<button class="add-person-card" data-action="add-person" data-kind="client">${icon('plus')} เพิ่มผู้ติดต่อ</button></div>
     </div>
-
     <div class="card" style="margin-bottom:24px">
       <div class="section-head"><div><h2>ส่งคำขอถึงทีมงาน</h2><div class="hint">แจ้งขอแก้ไขงาน ของานเพิ่ม หรือสอบถามความคืบหน้า พร้อมกำหนดวันที่ต้องการ</div></div></div>
       <form class="form-grid" data-form="request">
         <div class="form-field full"><label>หัวข้อ</label><input type="text" name="subject" placeholder="เช่น ขอแก้ไขสีปุ่มหน้าแรก" required></div>
         <div class="form-field"><label>ผู้ส่งคำขอ</label><select name="requesterId">${requesterOptions}</select></div>
         <div class="form-field"><label>โปรเจกต์</label><select name="projectId">${projectOptions}</select></div>
-        <div class="form-field"><label>ประเภทคำขอ</label>
-          <select name="category">
-            <option>แก้ไขงาน</option><option>ของานเพิ่ม</option><option>สอบถาม</option><option>เร่งด่วนอื่นๆ</option>
-          </select>
-        </div>
-        <div class="form-field"><label>ความสำคัญ</label>
-          <select name="priority"><option>ต่ำ</option><option selected>ปานกลาง</option><option>สูง</option><option>เร่งด่วน</option></select>
-        </div>
+        <div class="form-field"><label>ประเภทคำขอ</label><select name="category"><option>แก้ไขงาน</option><option>ของานเพิ่ม</option><option>สอบถาม</option><option>เร่งด่วนอื่นๆ</option></select></div>
+        <div class="form-field"><label>ความสำคัญ</label><select name="priority"><option>ต่ำ</option><option selected>ปานกลาง</option><option>สูง</option><option>เร่งด่วน</option></select></div>
         <div class="form-field"><label>ต้องการภายในวันที่</label><input type="date" name="desiredDate"></div>
         <div class="form-field full"><label>รายละเอียด</label><textarea name="description" rows="3" placeholder="อธิบายรายละเอียดคำขอของคุณ" required></textarea></div>
         <div class="form-field full"><button class="btn btn-primary" type="submit">${icon('plus')} ส่งคำขอ</button></div>
       </form>
     </div>
-
     <div class="section-head"><div><h2>คำขอที่ส่งไปแล้ว</h2></div></div>
     <div class="card">${reqList || `<div class="empty-state">${icon('inbox')}<p>ยังไม่มีคำขอ</p></div>`}</div>`;
 }
@@ -754,14 +572,27 @@ function renderContact() {
 /* =========================================================
    Task detail modal
    ========================================================= */
+function taggableOptions() {
+  const people = [
+    ...state.data.staff.map(s => ({ email: s.email, name: s.name, group: 'ทีมงานฝั่งเรา' })),
+    ...state.data.clientTeam.map(c => ({ email: c.email, name: c.name, group: 'ทีมงานฝั่งคุณ' })),
+  ];
+  const byGroup = {};
+  people.forEach(p => (byGroup[p.group] = byGroup[p.group] || []).push(p));
+  return Object.entries(byGroup).map(([group, list]) =>
+    `<optgroup label="${group}">${list.map(p => `<option value="${p.email}" data-name="${p.name}">${p.name}</option>`).join('')}</optgroup>`
+  ).join('');
+}
+
 function openTaskModal(id) {
-  const t = TASKS.find(x => x.id === id);
+  const t = state.data.tasks.find(x => x.id === id);
   const assignee = getAssignee(t);
   const meta = STATUS_META[t.status];
   const cur = getCurrentDeadline(t);
   const delay = getDelayInfo(t);
   const link = getWorkLink(t);
-  const files = allFiles().filter(f => f.taskId === t.id);
+  const files = state.data.files.filter(f => f.taskId === t.id);
+  const tags = (state.data.tags || []).filter(g => g.taskId === t.id);
 
   const revisionsHtml = (t.revisions || []).length ? t.revisions.map(r => `
     <div style="padding:10px 0;border-bottom:1px solid var(--border)">
@@ -771,61 +602,73 @@ function openTaskModal(id) {
 
   const filesHtml = files.length ? files.map(f => `
     <div style="display:flex;justify-content:space-between;align-items:center;padding:8px 0;border-bottom:1px solid var(--border);font-size:12.5px">
-      <span>${f.name}</span>
-      <span class="badge badge-${FILE_STATUS_META[f.status].badge}">${FILE_STATUS_META[f.status].label}</span>
+      <span>${f.name}</span><span class="badge badge-${FILE_STATUS_META[f.status].badge}">${FILE_STATUS_META[f.status].label}</span>
     </div>`).join('') : `<p class="row-sub">ยังไม่มีไฟล์แนบ</p>`;
 
-  const assigneeOptions = staff.map(s => `<option value="${s.id}" ${s.id === assignee.id ? 'selected' : ''}>${s.name} — ${s.role}</option>`).join('');
+  const tagsHtml = tags.length ? `<div class="tag-list">${tags.map(g => `<span class="tag-pill">${icon('tag')} ${g.taggedName || g.taggedEmail} ${g.emailSent ? '· ส่งอีเมลแล้ว' : '· ยังไม่ได้ส่งอีเมล'}</span>`).join('')}</div>` : '';
 
-  document.getElementById('taskModal').innerHTML = `
-    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
-      <div>
-        <div class="row-sub">${getProject(t.projectId).name}</div>
-        <h2 style="font-size:18px;margin-top:2px">${t.name}</h2>
-      </div>
-      <button class="icon-btn" data-action="close-modal">${icon('close')}</button>
-    </div>
+  const assigneeOptions = state.data.staff.map(s => `<option value="${s.id}" ${s.id === assignee.id ? 'selected' : ''}>${s.name} — ${s.role}</option>`).join('');
 
-    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
-      <span class="badge badge-${meta.badge}">${meta.label}</span>
-      <span class="delay-pill ${delay.late ? 'late' : 'ontime'}">${delay.label}</span>
-      ${t.status !== 'review' ? waitingTag(t) : ''}
-    </div>
-
-    <div class="progress-track" style="margin-bottom:6px"><div class="progress-fill" style="width:${t.progress}%"></div></div>
-    <div class="row-sub" style="margin-bottom:18px">ความคืบหน้า ${t.progress}%</div>
-
-    <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;font-size:13px">
-      <div><div class="row-sub">วันที่เริ่มงาน</div>${fmtDate(t.startDate)}</div>
-      <div><div class="row-sub">เดดไลน์เดิม</div>${fmtDate(t.originalDeadline)}</div>
-    </div>
-
+  const editorHtml = isAgency() ? `
+    <form data-form="update-task-info" data-id="${t.id}" style="margin-bottom:16px">
+      <div class="form-field" style="margin-bottom:10px"><label>ชื่องาน</label><input type="text" name="name" value="${t.name}" required></div>
+      <div class="form-field" style="margin-bottom:10px"><label>รายละเอียดงาน</label><textarea name="description" rows="2" placeholder="รายละเอียดเพิ่มเติมของงานนี้">${t.description || ''}</textarea></div>
+      <button class="btn btn-sm" type="submit">บันทึกชื่อ/รายละเอียด</button>
+    </form>
     <form data-form="update-assignee" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
       <div class="form-field" style="flex:1"><label>ผู้รับผิดชอบ</label><select name="assigneeId">${assigneeOptions}</select></div>
       <button class="btn btn-sm" type="submit">บันทึก</button>
     </form>
-
     <form data-form="update-deadline" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
       <div class="form-field" style="flex:1"><label>กำหนดการส่งงานล่าสุด</label><input type="date" name="deadline" value="${cur}"></div>
       <button class="btn btn-sm" type="submit">บันทึก</button>
     </form>
-
     <form data-form="update-link" data-id="${t.id}" style="display:flex;gap:8px;align-items:flex-end;margin-bottom:16px">
       <div class="form-field" style="flex:1"><label>ลิงก์งาน</label><input type="url" name="link" value="${link || ''}" placeholder="วางลิงก์ไฟล์งาน"></div>
       <button class="btn btn-sm" type="submit">บันทึก</button>
     </form>
-
-    <form data-form="update-waiting" data-id="${t.id}" style="margin-bottom:22px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-soft)">
+    <form data-form="update-waiting" data-id="${t.id}" style="margin-bottom:20px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm);background:var(--bg-soft)">
       <label style="display:flex;align-items:center;gap:8px;font-size:13px;font-weight:500;margin-bottom:10px">
         <input type="checkbox" name="waiting" ${isWaitingOnClient(t) ? 'checked' : ''}> งานนี้กำลังรอฝั่งลูกค้าดำเนินการอยู่
       </label>
       <div class="form-field" style="margin-bottom:10px"><textarea name="note" rows="2" placeholder="เช่น รอไฟล์ภาพจากลูกค้า, รอการอนุมัติ...">${getWaitingNote(t)}</textarea></div>
       <button class="btn btn-sm" type="submit">บันทึกสถานะการรอ</button>
-    </form>
+    </form>` : `
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;font-size:13px">
+      <div><div class="row-sub">ผู้รับผิดชอบ</div>${assignee.name} — ${assignee.role}</div>
+      <div><div class="row-sub">เดดไลน์ล่าสุด</div>${fmtDate(cur)}</div>
+    </div>
+    ${link ? `<a class="btn btn-sm" href="${link}" target="_blank" rel="noopener" style="margin-bottom:18px;width:fit-content">${icon('external')} เปิดลิงก์งาน</a>` : ''}
+    ${t.description ? `<p class="row-sub" style="margin-bottom:18px">${t.description}</p>` : ''}`;
 
+  document.getElementById('taskModal').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:16px">
+      <div><div class="row-sub">${getProject(t.projectId).icon} ${getProject(t.projectId).name}</div><h2 style="font-size:18px;margin-top:2px">${t.name}</h2></div>
+      <button class="icon-btn" data-action="close-modal">${icon('close')}</button>
+    </div>
+    <div style="display:flex;gap:10px;flex-wrap:wrap;margin-bottom:18px">
+      <span class="badge badge-${meta.badge}">${meta.label}</span>
+      <span class="delay-pill ${delay.late ? 'late' : 'ontime'}">${delay.label}</span>
+      ${t.status !== 'review' ? waitingTag(t) : ''}
+    </div>
+    <div class="progress-track" style="margin-bottom:6px"><div class="progress-fill" style="width:${t.progress}%"></div></div>
+    <div class="row-sub" style="margin-bottom:18px">ความคืบหน้า ${t.progress}%</div>
+    <div class="grid" style="grid-template-columns:1fr 1fr;gap:12px;margin-bottom:18px;font-size:13px">
+      <div><div class="row-sub">วันที่เริ่มงาน</div>${fmtDate(t.startDate)}</div>
+      <div><div class="row-sub">เดดไลน์เดิม</div>${fmtDate(t.originalDeadline)}</div>
+    </div>
+    ${editorHtml}
+    <div style="margin-bottom:22px;padding:12px;border:1px solid var(--border);border-radius:var(--radius-sm)">
+      <h3 style="font-size:13.5px;margin-bottom:8px">${icon('tag')} แท็กคนเพื่อแจ้งเตือน (ส่งอีเมล)</h3>
+      ${tagsHtml}
+      <form data-form="tag-person" data-id="${t.id}" style="margin-top:10px">
+        <div class="form-field" style="margin-bottom:8px"><select name="email" required><option value="">เลือกคน...</option>${taggableOptions()}</select></div>
+        <div class="form-field" style="margin-bottom:8px"><input type="text" name="message" placeholder="ข้อความสั้นๆ (ไม่บังคับ)"></div>
+        <button class="btn btn-sm btn-primary" type="submit">${icon('mail')} แจ้งเตือน</button>
+      </form>
+    </div>
     <h3 style="font-size:13.5px;margin-bottom:8px">ประวัติการขอแก้ไข</h3>
     <div style="margin-bottom:20px">${revisionsHtml}</div>
-
     <h3 style="font-size:13.5px;margin-bottom:8px">ไฟล์ที่เกี่ยวข้อง</h3>
     <div>${filesHtml}</div>`;
 
@@ -837,7 +680,7 @@ function openTaskModal(id) {
    ========================================================= */
 function openPersonModal(kind, id) {
   const isStaff = kind === 'staff';
-  const roster = isStaff ? staff : clientTeam;
+  const roster = isStaff ? state.data.staff : state.data.clientTeam;
   const person = id ? roster.find(p => p.id === id) : null;
   const title = person ? `แก้ไขข้อมูล${isStaff ? 'ทีมงาน' : 'ผู้ติดต่อ'}` : `เพิ่ม${isStaff ? 'ทีมงานฝั่งเรา' : 'ผู้ติดต่อฝั่งลูกค้า'}`;
 
@@ -850,7 +693,7 @@ function openPersonModal(kind, id) {
       <div class="form-grid">
         <div class="form-field full"><label>ชื่อ-นามสกุล</label><input type="text" name="name" value="${person ? person.name : ''}" required></div>
         <div class="form-field full"><label>ตำแหน่ง${isStaff ? ' (เช่น PM, Producer, Developer, AE)' : ''}</label><input type="text" name="role" value="${person ? person.role : ''}" required></div>
-        <div class="form-field"><label>อีเมล</label><input type="email" name="email" value="${person ? person.email : ''}"></div>
+        <div class="form-field"><label>อีเมล ${person ? '' : '(ใช้สำหรับล็อกอินด้วย Google)'}</label><input type="email" name="email" value="${person ? person.email : ''}" required></div>
         <div class="form-field"><label>เบอร์โทร</label><input type="text" name="phone" value="${person ? person.phone : ''}"></div>
         ${isStaff ? `<div class="form-field full"><label>Line ID</label><input type="text" name="line" value="${person ? (person.line || '') : ''}"></div>` : ''}
         ${!isStaff ? `<div class="form-field full"><label style="display:flex;align-items:center;gap:8px;font-weight:500;color:var(--text)"><input type="checkbox" name="primary" ${person && person.primary ? 'checked' : ''}> ตั้งเป็นผู้ติดต่อหลัก</label></div>` : ''}
@@ -860,7 +703,71 @@ function openPersonModal(kind, id) {
         <button class="btn btn-primary" type="submit">${icon('check')} บันทึก</button>
       </div>
     </form>`;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
 
+/* =========================================================
+   Project create/edit modal
+   ========================================================= */
+function openProjectModal(id) {
+  const project = id ? getProject(id) : null;
+  const title = project ? 'แก้ไขโปรเจกต์' : 'เพิ่มโปรเจกต์ใหม่';
+  const selectedIcon = project ? project.icon : PROJECT_ICON_CHOICES[0];
+
+  document.getElementById('taskModal').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+      <h2 style="font-size:17px">${title}</h2>
+      <button class="icon-btn" data-action="close-modal">${icon('close')}</button>
+    </div>
+    <form data-form="save-project" data-id="${project ? project.id : ''}">
+      <div class="form-field full" style="margin-bottom:12px"><label>ชื่อโปรเจกต์</label><input type="text" name="name" value="${project ? project.name : ''}" required></div>
+      <div class="form-field full" style="margin-bottom:12px"><label>รายละเอียด</label><textarea name="description" rows="2">${project ? project.description : ''}</textarea></div>
+      <div class="form-field full">
+        <label>ไอคอนโปรเจกต์</label>
+        <input type="hidden" name="icon" value="${selectedIcon}">
+        <div class="icon-picker">${PROJECT_ICON_CHOICES.map(ic => `<button type="button" data-icon-choice="${ic}" class="${ic === selectedIcon ? 'selected' : ''}">${ic}</button>`).join('')}</div>
+      </div>
+      <div style="margin-top:20px;text-align:right"><button class="btn btn-primary" type="submit">${icon('check')} บันทึก</button></div>
+    </form>`;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function openTaskCreateModal() {
+  const projectOptions = state.data.projects.map(p => `<option value="${p.id}" ${p.id === state.project ? 'selected' : ''}>${p.icon} ${p.name}</option>`).join('');
+  const assigneeOptions = state.data.staff.map(s => `<option value="${s.id}">${s.name} — ${s.role}</option>`).join('');
+  document.getElementById('taskModal').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+      <h2 style="font-size:17px">เพิ่มงานใหม่</h2>
+      <button class="icon-btn" data-action="close-modal">${icon('close')}</button>
+    </div>
+    <form data-form="create-task">
+      <div class="form-grid">
+        <div class="form-field full"><label>ชื่องาน</label><input type="text" name="name" required></div>
+        <div class="form-field"><label>โปรเจกต์</label><select name="projectId">${projectOptions}</select></div>
+        <div class="form-field"><label>ผู้รับผิดชอบ</label><select name="assigneeId">${assigneeOptions}</select></div>
+        <div class="form-field"><label>วันที่เริ่ม</label><input type="date" name="startDate" value="${todayISO()}"></div>
+        <div class="form-field"><label>กำหนดส่ง</label><input type="date" name="originalDeadline" value="${addDays(todayISO(), 7)}"></div>
+        <div class="form-field full"><label>ลิงก์งาน (ถ้ามี)</label><input type="url" name="workLink"></div>
+      </div>
+      <div style="margin-top:20px;text-align:right"><button class="btn btn-primary" type="submit">${icon('plus')} สร้างงาน</button></div>
+    </form>`;
+  document.getElementById('modalBackdrop').classList.add('open');
+}
+
+function openAvatarModal() {
+  const me = state.data.me;
+  document.getElementById('taskModal').innerHTML = `
+    <div style="display:flex;justify-content:space-between;align-items:flex-start;margin-bottom:18px">
+      <h2 style="font-size:17px">แก้ไขรูปโปรไฟล์</h2>
+      <button class="icon-btn" data-action="close-modal">${icon('close')}</button>
+    </div>
+    <div style="display:flex;justify-content:center;margin-bottom:16px">
+      <div class="avatar" style="width:64px;height:64px;font-size:20px" id="avatarPreview">${me.picture ? `<img class="avatar-img" src="${me.picture}">` : initials(me.name)}</div>
+    </div>
+    <form data-form="update-avatar">
+      <div class="form-field full"><label>ลิงก์รูปภาพ (URL)</label><input type="url" name="avatarUrl" value="${me.picture || ''}" placeholder="https://..."></div>
+      <div style="margin-top:16px;text-align:right"><button class="btn btn-primary" type="submit">${icon('check')} บันทึก</button></div>
+    </form>`;
   document.getElementById('modalBackdrop').classList.add('open');
 }
 
@@ -870,21 +777,27 @@ function closeModal() { document.getElementById('modalBackdrop').classList.remov
    Render all + navigation
    ========================================================= */
 function renderAll() {
-  renderDashboard();
-  renderTasks();
-  renderTimeline();
-  renderFiles();
-  renderRevisions();
-  renderDelays();
-  renderContact();
-  renderClientChip();
+  renderDashboard(); renderTasks(); renderTimeline(); renderFiles();
+  renderRevisions(); renderDelays(); renderContact(); renderMeChip(); renderProjectPicker();
 }
 
-function renderClientChip() {
-  const primary = getPrimaryClientContact();
-  document.getElementById('clientChipName').textContent = primary ? primary.name : 'ลูกค้า';
-  document.getElementById('clientChipCompany').textContent = CLIENT.name;
-  document.getElementById('clientChipAvatar').textContent = primary ? initials(primary.name) : initials(CLIENT.name);
+function renderMeChip() {
+  const me = state.data.me;
+  document.getElementById('clientChipAvatar').innerHTML = me.picture ? `<img class="avatar-img" src="${me.picture}">` : initials(me.name);
+  document.getElementById('clientChipName').textContent = me.name || me.email;
+  document.getElementById('clientChipCompany').textContent = me.role === 'agency' ? 'ทีมงานฝั่งเรา' : state.data.client.name;
+}
+
+function renderProjectPicker() {
+  const sel = document.getElementById('projectFilter');
+  const current = sel.value || 'all';
+  sel.innerHTML = `<option value="all">ทุกโปรเจกต์</option>` + state.data.projects.map(p => `<option value="${p.id}">${p.icon} ${p.name}</option>`).join('');
+  sel.value = state.data.projects.some(p => p.id === current) || current === 'all' ? current : 'all';
+
+  const actions = document.getElementById('projectPickerActions');
+  actions.innerHTML = `
+    ${state.project !== 'all' ? `<button class="icon-btn-sm" id="editProjectBtn" title="แก้ไขโปรเจกต์">${icon('edit')}</button>` : ''}
+    ${isAgency() ? `<button class="icon-btn-sm" id="addProjectBtn" title="เพิ่มโปรเจกต์ใหม่">${icon('plus')}</button>` : ''}`;
 }
 
 const VIEW_META = {
@@ -917,20 +830,36 @@ function applyTheme(theme) {
   store.set('cp_theme', theme);
 }
 
-/* ---------- Init ---------- */
-function init() {
-  // project select
-  const sel = document.getElementById('projectFilter');
-  sel.innerHTML = `<option value="all">ทุกโปรเจกต์</option>` + PROJECTS.map(p => `<option value="${p.id}">${p.name}</option>`).join('');
-  sel.addEventListener('change', () => { state.project = sel.value; renderAll(); });
+/* ---------- Login gate ---------- */
+function showLogin(googleConfigured, authError) {
+  document.getElementById('appShell').style.display = 'none';
+  document.getElementById('loginScreen').style.display = 'flex';
+  const note = document.getElementById('loginNote');
+  const btn = document.querySelector('.google-btn');
+  if (!googleConfigured) {
+    btn.style.display = 'none';
+    note.textContent = 'ยังไม่ได้ตั้งค่าระบบล็อกอิน Google (GOOGLE_CLIENT_ID / GOOGLE_CLIENT_SECRET) กรุณาติดต่อผู้ดูแลระบบ';
+    return;
+  }
+  const messages = {
+    not_allowed: 'อีเมลนี้ยังไม่ได้รับสิทธิ์เข้าถึงระบบ กรุณาติดต่อผู้ดูแลระบบเพื่อเพิ่มอีเมลของคุณในทีมงานหรือทีมลูกค้า',
+    not_configured: 'ระบบล็อกอินยังไม่พร้อมใช้งาน',
+    1: 'เข้าสู่ระบบไม่สำเร็จ กรุณาลองใหม่อีกครั้ง',
+  };
+  note.textContent = authError ? (messages[authError] || messages[1]) : '';
+}
 
-  // nav
+/* ---------- Init ---------- */
+async function loadData() {
+  state.data = await api('GET', '/api/bootstrap');
+}
+
+function bindEvents() {
   document.getElementById('nav').addEventListener('click', e => {
     const btn = e.target.closest('.nav-item');
     if (btn) switchView(btn.dataset.view);
   });
 
-  // mobile sidebar
   document.getElementById('menuBtn').addEventListener('click', () => {
     document.getElementById('sidebar').classList.add('open');
     document.getElementById('scrim').classList.add('open');
@@ -939,24 +868,31 @@ function init() {
   document.getElementById('sidebarClose').addEventListener('click', closeSidebar);
   document.getElementById('scrim').addEventListener('click', closeSidebar);
 
-  // theme
   const savedTheme = store.get('cp_theme', window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light');
   applyTheme(savedTheme);
   document.getElementById('themeToggle').addEventListener('click', () => {
     applyTheme(document.documentElement.getAttribute('data-theme') === 'dark' ? 'light' : 'dark');
   });
 
-  // global search
+  document.getElementById('logoutBtn').addEventListener('click', async () => {
+    await api('POST', '/auth/logout');
+    location.reload();
+  });
+
+  document.getElementById('clientChipBtn').addEventListener('click', openAvatarModal);
+
   document.getElementById('globalSearch').addEventListener('input', e => {
     state.search = e.target.value.trim();
     if (state.search) switchView('tasks');
     renderTasks();
   });
 
-  // modal close
   document.getElementById('modalBackdrop').addEventListener('click', e => { if (e.target.id === 'modalBackdrop') closeModal(); });
 
-  // delegated clicks
+  document.getElementById('content').addEventListener('change', e => {
+    if (e.target.id === 'projectFilter') { state.project = e.target.value; renderAll(); }
+  });
+
   document.getElementById('content').addEventListener('click', e => {
     const statusBtn = e.target.closest('[data-action="status-filter"]');
     if (statusBtn) { state.statusFilter = statusBtn.dataset.status; renderTasks(); return; }
@@ -964,26 +900,34 @@ function init() {
     const openBtn = e.target.closest('[data-action="open-task"]');
     if (openBtn) { openTaskModal(openBtn.dataset.id); return; }
 
+    const addTaskBtn = e.target.closest('[data-action="add-task"]');
+    if (addTaskBtn) { openTaskCreateModal(); return; }
+
     const editPersonBtn = e.target.closest('[data-action="edit-person"]');
     if (editPersonBtn) { openPersonModal(editPersonBtn.dataset.kind, editPersonBtn.dataset.id); return; }
 
     const addPersonBtn = e.target.closest('[data-action="add-person"]');
     if (addPersonBtn) { openPersonModal(addPersonBtn.dataset.kind, null); return; }
 
+    if (e.target.id === 'addProjectBtn' || e.target.closest('#addProjectBtn')) { openProjectModal(null); return; }
+    if (e.target.id === 'editProjectBtn' || e.target.closest('#editProjectBtn')) { openProjectModal(state.project); return; }
+
     const approveBtn = e.target.closest('[data-action="approve-file"]');
     if (approveBtn) {
-      fileOverrides[approveBtn.dataset.id] = { status: 'approved', comment: 'ลูกค้าอนุมัติไฟล์นี้แล้ว' };
-      store.set('cp_file_overrides', fileOverrides);
-      renderFiles(); toast('อนุมัติไฟล์เรียบร้อยแล้ว');
+      guarded(async () => {
+        await api('PATCH', `/api/files/${approveBtn.dataset.id}`, { status: 'approved', comment: 'ลูกค้าอนุมัติไฟล์นี้แล้ว' });
+        await loadData(); renderAll(); toast('อนุมัติไฟล์เรียบร้อยแล้ว');
+      });
       return;
     }
     const rejectBtn = e.target.closest('[data-action="reject-file"]');
     if (rejectBtn) {
       const reason = prompt('ระบุสิ่งที่ต้องการให้แก้ไข:');
       if (reason === null) return;
-      fileOverrides[rejectBtn.dataset.id] = { status: 'rejected', comment: reason || 'ลูกค้าขอให้แก้ไขไฟล์นี้' };
-      store.set('cp_file_overrides', fileOverrides);
-      renderFiles(); toast('ส่งคำขอแก้ไขไฟล์แล้ว');
+      guarded(async () => {
+        await api('PATCH', `/api/files/${rejectBtn.dataset.id}`, { status: 'rejected', comment: reason || 'ลูกค้าขอให้แก้ไขไฟล์นี้' });
+        await loadData(); renderAll(); toast('ส่งคำขอแก้ไขไฟล์แล้ว');
+      });
       return;
     }
   });
@@ -991,52 +935,44 @@ function init() {
   document.getElementById('taskModal').addEventListener('click', e => {
     if (e.target.closest('[data-action="close-modal"]')) { closeModal(); return; }
 
+    const iconChoice = e.target.closest('[data-icon-choice]');
+    if (iconChoice) {
+      const form = iconChoice.closest('form');
+      form.querySelector('[name="icon"]').value = iconChoice.dataset.iconChoice;
+      form.querySelectorAll('.icon-picker button').forEach(b => b.classList.toggle('selected', b === iconChoice));
+      return;
+    }
+
     const delPersonBtn = e.target.closest('[data-action="delete-person"]');
     if (delPersonBtn) {
-      const kind = delPersonBtn.dataset.kind;
-      const id = delPersonBtn.dataset.id;
-      if (kind === 'staff') {
-        const inUse = TASKS.some(t => (assigneeOverrides[t.id] || t.assigneeId) === id);
-        if (inUse) { toast('ไม่สามารถลบได้ เนื่องจากยังมีงานที่มอบหมายให้คนนี้อยู่ กรุณาเปลี่ยนผู้รับผิดชอบก่อน'); return; }
-        if (staff.length <= 1) { toast('ต้องมีทีมงานอย่างน้อย 1 คน'); return; }
-        staff = staff.filter(s => s.id !== id);
-        store.set('cp_staff', staff);
-      } else {
-        const inUse = allRequests().some(r => r.requesterId === id);
-        if (inUse) { toast('ไม่สามารถลบได้ เนื่องจากมีคำขอที่ส่งโดยผู้ติดต่อนี้อยู่'); return; }
-        if (clientTeam.length <= 1) { toast('ต้องมีผู้ติดต่อฝั่งลูกค้าอย่างน้อย 1 คน'); return; }
-        const wasPrimary = clientTeam.find(c => c.id === id)?.primary;
-        clientTeam = clientTeam.filter(c => c.id !== id);
-        if (wasPrimary && clientTeam.length) clientTeam[0].primary = true;
-        store.set('cp_client_team', clientTeam);
-      }
-      closeModal(); renderAll(); toast('ลบข้อมูลเรียบร้อยแล้ว');
+      guarded(async () => {
+        const kind = delPersonBtn.dataset.kind, id = delPersonBtn.dataset.id;
+        await api('DELETE', kind === 'staff' ? `/api/staff/${id}` : `/api/client-contacts/${id}`);
+        closeModal(); await loadData(); renderAll(); toast('ลบข้อมูลเรียบร้อยแล้ว');
+      });
     }
   });
 
-  // delegated form submits
   document.getElementById('content').addEventListener('submit', e => {
     e.preventDefault();
     const form = e.target;
     if (form.dataset.form === 'add-link') {
-      const fd = new FormData(form);
-      const id = 'fx' + Date.now();
-      extraFiles.push({ id, taskId: fd.get('taskId'), name: fd.get('name'), link: fd.get('link'), uploadedBy: 's1', uploadedDate: TODAY_STR, status: 'pending', comment: '' });
-      store.set('cp_extra_files', extraFiles);
-      form.reset();
-      renderFiles(); toast('ส่งลิงก์งานเรียบร้อยแล้ว รอการอนุมัติ');
+      guarded(async () => {
+        const fd = new FormData(form);
+        await api('POST', '/api/files', { taskId: fd.get('taskId'), name: fd.get('name'), link: fd.get('link') });
+        form.reset(); await loadData(); renderAll(); toast('ส่งลิงก์งานเรียบร้อยแล้ว รอการอนุมัติ');
+      });
     }
     if (form.dataset.form === 'request') {
-      const fd = new FormData(form);
-      const id = 'rx' + Date.now();
-      extraRequests.push({
-        id, projectId: fd.get('projectId'), requesterId: fd.get('requesterId'), subject: fd.get('subject'), category: fd.get('category'),
-        priority: fd.get('priority'), desiredDate: fd.get('desiredDate') || '', description: fd.get('description'),
-        status: 'รอดำเนินการ', submittedDate: TODAY_STR,
+      guarded(async () => {
+        const fd = new FormData(form);
+        await api('POST', '/api/requests', {
+          projectId: fd.get('projectId'), requesterId: fd.get('requesterId'), subject: fd.get('subject'),
+          category: fd.get('category'), priority: fd.get('priority'), desiredDate: fd.get('desiredDate') || null,
+          description: fd.get('description'),
+        });
+        form.reset(); await loadData(); renderAll(); toast('ส่งคำขอถึงทีมงานเรียบร้อยแล้ว');
       });
-      store.set('cp_extra_requests', extraRequests);
-      form.reset();
-      renderContact(); toast('ส่งคำขอถึงทีมงานเรียบร้อยแล้ว');
     }
   });
 
@@ -1045,64 +981,108 @@ function init() {
     const form = e.target;
     const id = form.dataset.id;
 
+    if (form.dataset.form === 'update-task-info') {
+      guarded(async () => {
+        const fd = new FormData(form);
+        await api('PATCH', `/api/tasks/${id}`, { name: fd.get('name'), description: fd.get('description') });
+        toast('บันทึกชื่อ/รายละเอียดแล้ว'); await loadData(); renderAll(); openTaskModal(id);
+      });
+    }
     if (form.dataset.form === 'update-assignee') {
-      const val = new FormData(form).get('assigneeId');
-      assigneeOverrides[id] = val; store.set('cp_assignee_overrides', assigneeOverrides);
-      toast('เปลี่ยนผู้รับผิดชอบแล้ว');
-      renderAll(); openTaskModal(id); return;
+      guarded(async () => {
+        await api('PATCH', `/api/tasks/${id}`, { assigneeId: new FormData(form).get('assigneeId') });
+        toast('เปลี่ยนผู้รับผิดชอบแล้ว'); await loadData(); renderAll(); openTaskModal(id);
+      });
     }
     if (form.dataset.form === 'update-deadline') {
-      const val = new FormData(form).get('deadline');
-      if (val) { deadlineOverrides[id] = val; store.set('cp_deadline_overrides', deadlineOverrides); toast('อัปเดตกำหนดการส่งงานแล้ว'); }
-      renderAll(); openTaskModal(id); return;
+      guarded(async () => {
+        const val = new FormData(form).get('deadline');
+        if (val) await api('PATCH', `/api/tasks/${id}`, { deadlineOverride: val });
+        toast('อัปเดตกำหนดการส่งงานแล้ว'); await loadData(); renderAll(); openTaskModal(id);
+      });
     }
     if (form.dataset.form === 'update-link') {
-      const val = new FormData(form).get('link');
-      linkOverrides[id] = val; store.set('cp_link_overrides', linkOverrides); toast('อัปเดตลิงก์งานแล้ว');
-      renderAll(); openTaskModal(id); return;
+      guarded(async () => {
+        await api('PATCH', `/api/tasks/${id}`, { workLink: new FormData(form).get('link') });
+        toast('อัปเดตลิงก์งานแล้ว'); await loadData(); renderAll(); openTaskModal(id);
+      });
     }
     if (form.dataset.form === 'update-waiting') {
-      const fd = new FormData(form);
-      waitingOverrides[id] = fd.get('waiting') === 'on';
-      waitingNotes[id] = fd.get('note') || '';
-      store.set('cp_waiting_overrides', waitingOverrides);
-      store.set('cp_waiting_notes', waitingNotes);
-      toast('บันทึกสถานะการรอแล้ว');
-      renderAll(); openTaskModal(id); return;
+      guarded(async () => {
+        const fd = new FormData(form);
+        await api('PATCH', `/api/tasks/${id}`, { waitingOnClient: fd.get('waiting') === 'on', waitingNote: fd.get('note') || '' });
+        toast('บันทึกสถานะการรอแล้ว'); await loadData(); renderAll(); openTaskModal(id);
+      });
     }
-
+    if (form.dataset.form === 'tag-person') {
+      guarded(async () => {
+        const fd = new FormData(form);
+        const opt = form.querySelector(`option[value="${CSS.escape(fd.get('email'))}"]`);
+        const result = await api('POST', `/api/tasks/${id}/tag`, { email: fd.get('email'), name: opt ? opt.dataset.name : '', message: fd.get('message') });
+        toast(result.sent ? 'ส่งอีเมลแจ้งเตือนแล้ว' : `บันทึกการแท็กแล้ว (ยังไม่ได้ส่งอีเมล: ${result.reason || 'ไม่ได้ตั้งค่าอีเมล'})`);
+        await loadData(); renderAll(); openTaskModal(id);
+      });
+    }
     if (form.dataset.form === 'save-person') {
-      const kind = form.dataset.kind;
-      const existingId = form.dataset.id;
-      const fd = new FormData(form);
-      const name = (fd.get('name') || '').trim();
-      const role = (fd.get('role') || '').trim();
-      if (!name || !role) { toast('กรุณากรอกชื่อและตำแหน่ง'); return; }
-
-      if (kind === 'staff') {
-        const data = { name, role, email: fd.get('email') || '', phone: fd.get('phone') || '', line: fd.get('line') || '' };
-        if (existingId) {
-          staff = staff.map(s => s.id === existingId ? { ...s, ...data } : s);
-        } else {
-          staff = [...staff, { id: 's' + Date.now(), ...data }];
-        }
-        store.set('cp_staff', staff);
-      } else {
-        const primary = fd.get('primary') === 'on';
-        const data = { name, role, email: fd.get('email') || '', phone: fd.get('phone') || '', primary };
-        if (existingId) {
-          clientTeam = clientTeam.map(c => c.id === existingId ? { ...c, ...data } : (primary ? { ...c, primary: false } : c));
-        } else {
-          if (primary) clientTeam = clientTeam.map(c => ({ ...c, primary: false }));
-          clientTeam = [...clientTeam, { id: 'ct' + Date.now(), ...data, primary: primary || clientTeam.length === 0 }];
-        }
-        store.set('cp_client_team', clientTeam);
-      }
-      closeModal(); renderAll(); toast('บันทึกข้อมูลเรียบร้อยแล้ว');
+      guarded(async () => {
+        const kind = form.dataset.kind, existingId = form.dataset.id;
+        const fd = new FormData(form);
+        const payload = { name: fd.get('name'), role: fd.get('role'), email: fd.get('email'), phone: fd.get('phone') };
+        if (kind === 'staff') payload.line = fd.get('line');
+        else payload.primary = fd.get('primary') === 'on';
+        const base = kind === 'staff' ? '/api/staff' : '/api/client-contacts';
+        await api(existingId ? 'PATCH' : 'POST', existingId ? `${base}/${existingId}` : base, payload);
+        closeModal(); await loadData(); renderAll(); toast('บันทึกข้อมูลเรียบร้อยแล้ว');
+      });
+    }
+    if (form.dataset.form === 'save-project') {
+      guarded(async () => {
+        const existingId = form.dataset.id;
+        const fd = new FormData(form);
+        const payload = { name: fd.get('name'), description: fd.get('description'), icon: fd.get('icon') };
+        if (existingId) await api('PATCH', `/api/projects/${existingId}`, payload);
+        else await api('POST', '/api/projects', payload);
+        closeModal(); await loadData(); renderAll(); toast('บันทึกโปรเจกต์เรียบร้อยแล้ว');
+      });
+    }
+    if (form.dataset.form === 'create-task') {
+      guarded(async () => {
+        const fd = new FormData(form);
+        await api('POST', '/api/tasks', {
+          projectId: fd.get('projectId'), name: fd.get('name'), assigneeId: fd.get('assigneeId'),
+          startDate: fd.get('startDate'), originalDeadline: fd.get('originalDeadline'), workLink: fd.get('workLink'),
+        });
+        closeModal(); await loadData(); renderAll(); toast('สร้างงานใหม่เรียบร้อยแล้ว');
+      });
+    }
+    if (form.dataset.form === 'update-avatar') {
+      guarded(async () => {
+        const val = new FormData(form).get('avatarUrl');
+        await api('PATCH', '/api/me/avatar', { avatarUrl: val });
+        state.data.me.picture = val;
+        closeModal(); await loadData(); renderAll(); toast('อัปเดตรูปโปรไฟล์แล้ว');
+      });
     }
   });
-
-  renderAll();
 }
 
-document.addEventListener('DOMContentLoaded', init);
+async function init() {
+  const meRes = await api('GET', '/api/me');
+  if (!meRes.user) {
+    showLogin(meRes.googleConfigured, new URLSearchParams(location.search).get('auth_error'));
+    return;
+  }
+  try {
+    await loadData();
+  } catch (e) {
+    showLogin(true, '1');
+    return;
+  }
+  bindEvents();
+  renderAll();
+  switchView('dashboard');
+  document.getElementById('loginScreen').style.display = 'none';
+  document.getElementById('appShell').style.display = '';
+}
+
+document.addEventListener('DOMContentLoaded', () => { init(); });

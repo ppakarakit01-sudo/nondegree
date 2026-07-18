@@ -138,8 +138,10 @@ a { color: var(--primary); text-decoration: none; }
 .nav-icon { width: 18px; height: 18px; flex-shrink: 0; display: inline-flex; }
 .nav-icon svg { width: 100%; height: 100%; stroke: currentColor; fill: none; stroke-width: 1.8; stroke-linecap: round; stroke-linejoin: round; }
 
-.sidebar-bottom { display: flex; flex-direction: column; gap: 14px; }
+.sidebar-bottom { display: flex; flex-direction: column; gap: 10px; }
 .project-picker { display: flex; flex-direction: column; gap: 6px; }
+.project-picker-head { display: flex; align-items: center; justify-content: space-between; }
+.project-picker-actions { display: flex; gap: 4px; }
 .project-picker label { font-size: 11.5px; color: var(--text-faint); font-weight: 500; }
 .project-picker select {
   width: 100%; padding: 9px 10px; border-radius: var(--radius-sm);
@@ -178,7 +180,9 @@ a { color: var(--primary); text-decoration: none; }
 .search-box .nav-icon { color: var(--text-faint); }
 .search-box input { border: none; background: transparent; outline: none; color: var(--text); font-family: inherit; font-size: 13px; width: 100%; }
 
-.client-chip { display: flex; align-items: center; gap: 9px; }
+.client-chip { display: flex; align-items: center; gap: 9px; border: none; background: transparent; padding: 4px; border-radius: 10px; }
+.client-chip:hover { background: var(--bg-soft); }
+.avatar-img { width: 100%; height: 100%; border-radius: 50%; object-fit: cover; }
 .avatar {
   width: 36px; height: 36px; border-radius: 50%; background: var(--primary-soft); color: var(--primary);
   display: flex; align-items: center; justify-content: center; font-weight: 600; font-size: 13px; flex-shrink: 0;
@@ -411,6 +415,36 @@ tbody tr:hover { background: var(--bg-soft); }
 .empty-state { text-align: center; padding: 40px 20px; color: var(--text-muted); }
 .empty-state .nav-icon { width: 34px; height: 34px; margin: 0 auto 10px; color: var(--text-faint); }
 .empty-state p { font-size: 13px; }
+
+/* ===== Login screen ===== */
+.login-screen {
+  min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 20px;
+  background: radial-gradient(circle at 30% 20%, var(--primary-soft), var(--bg) 60%);
+}
+.login-card {
+  background: var(--bg-elev); border: 1px solid var(--border); border-radius: var(--radius-lg);
+  box-shadow: var(--shadow-lg); padding: 40px 36px; max-width: 380px; width: 100%; text-align: center;
+}
+.login-card h1 { font-size: 20px; margin-bottom: 10px; }
+.login-card p { font-size: 13.5px; color: var(--text-muted); line-height: 1.6; margin-bottom: 24px; }
+.google-btn { width: 100%; padding: 12px; gap: 10px; font-size: 14px; }
+.login-note { color: var(--danger); font-size: 12.5px; margin-top: 16px; margin-bottom: 0; min-height: 0; }
+.login-note:empty { display: none; }
+
+/* ===== Icon picker ===== */
+.icon-picker { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 6px; }
+.icon-picker button {
+  width: 36px; height: 36px; border-radius: 9px; border: 1.5px solid var(--border); background: var(--bg-elev);
+  font-size: 17px; display: flex; align-items: center; justify-content: center;
+}
+.icon-picker button.selected { border-color: var(--primary); background: var(--primary-soft); }
+
+/* ===== Tag / mention ===== */
+.tag-list { display: flex; flex-wrap: wrap; gap: 6px; margin-top: 8px; }
+.tag-pill {
+  display: inline-flex; align-items: center; gap: 6px; padding: 5px 10px; border-radius: 100px;
+  background: var(--info-soft); color: var(--info); font-size: 12px; font-weight: 500;
+}
 
 /* ===== Modal ===== */
 .modal-backdrop {
